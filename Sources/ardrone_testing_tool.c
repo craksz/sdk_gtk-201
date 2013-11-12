@@ -6,10 +6,12 @@
 #include <ardrone_testing_tool.h>
 
 //ARDroneLib
+#include <ardrone_tool/ardrone_version.h>
 #include <ardrone_tool/Navdata/ardrone_navdata_client.h>
 //#include <ardrone_tool/ardrone_time.h>
 #include <ardrone_tool/Control/ardrone_control.h>
 #include <ardrone_tool/UI/ardrone_input.h>
+#include <ardrone_tool/Video/video_stage.h>
 
 //Common
 #include <config.h>
@@ -29,8 +31,23 @@
 
 #define customPad 1
 
+#ifndef STREAM_WIDTH
+#define STREAM_WIDTH 512
+#endif
+#ifndef STREAM_HEIGHT
+#define STREAM_HEIGHT 512
+#endif
+
 
 static int32_t exit_ihm_program = 1;
+
+vp_stages_latency_estimation_config_t vlat;
+//vp_stages_gtk_config_t gtkconf;
+
+extern video_decoder_config_t vec;
+//extern vp_stages_draw_trackers_config_t draw_trackers_cfg;
+extern const vp_api_stage_funcs_t vp_stages_output_gtk_funcs;
+
 
 DEFINE_THREAD_ROUTINE(gui, data) /* gui is the routine's name */
 {
@@ -70,7 +87,121 @@ C_RESULT ardrone_tool_init_custom(void)
 	START_THREAD(gui, NULL); // Starting the GUI thread 
 	START_THREAD(imgproc,NULL);
 	START_THREAD(ttiofiles,NULL);
-  START_THREAD( video_stage, NULL );
+    
+    
+    /************************ VIDEO STAGE CONFIG ******************************/
+
+    
+    
+    #define NB_NAVIGATION_POST_STAGES   10
+    uint8_t post_stages_index = 0;
+
+    //Alloc structs
+    specific_parameters_t * params             = (specific_parameters_t *)vp_os_calloc(1,sizeof(specific_parameters_t));
+    specific_stages_t * navigation_pre_stages  = (specific_stages_t*)vp_os_calloc(1, sizeof(specific_stages_t));
+    specific_stages_t * navigation_post_stages = (specific_stages_t*)vp_os_calloc(1, sizeof(specific_stages_t));
+    vp_api_picture_t  * in_picture             = (vp_api_picture_t*) vp_os_calloc(1, sizeof(vp_api_picture_t));
+    vp_api_picture_t  * out_picture            = (vp_api_picture_t*) vp_os_calloc(1, sizeof(vp_api_picture_t));
+
+    in_picture->width          = STREAM_WIDTH;
+    in_picture->height         = STREAM_HEIGHT;
+
+    out_picture->framerate     = 20;
+    out_picture->format        = PIX_FMT_RGB24;
+    out_picture->width         = STREAM_WIDTH;
+    out_picture->height        = STREAM_HEIGHT;
+
+    out_picture->y_buf         = vp_os_malloc( STREAM_WIDTH * STREAM_HEIGHT * 3 );
+    out_picture->cr_buf        = NULL;
+    out_picture->cb_buf        = NULL;
+
+    out_picture->y_line_size   = STREAM_WIDTH * 3;
+    out_picture->cb_line_size  = 0;
+    out_picture->cr_line_size  = 0;
+
+    //Alloc the lists
+    navigation_pre_stages->stages_list  = NULL;
+    navigation_post_stages->stages_list = (vp_api_io_stage_t*)vp_os_calloc(NB_NAVIGATION_POST_STAGES,sizeof(vp_api_io_stage_t));
+
+    //Fill the POST-stages------------------------------------------------------
+    vp_os_memset(&vlat,         0, sizeof( vlat ));
+    vlat.state = 0;
+    vlat.last_decoded_frame_info = (void*)&vec;
+    navigation_post_stages->stages_list[post_stages_index].name    = "(latency estimator)";
+    navigation_post_stages->stages_list[post_stages_index].type    = VP_API_FILTER_DECODER;
+    navigation_post_stages->stages_list[post_stages_index].cfg     = (void*)&vlat;
+    navigation_post_stages->stages_list[post_stages_index++].funcs = vp_stages_latency_estimation_funcs;
+
+    #ifdef RECORD_RAW_VIDEO
+    vp_os_memset(&vrc,         0, sizeof( vrc ));
+    #warning Recording RAW video option enabled in Navigation.
+    vrc.stage = 3;
+    #warning We have to get the stage number an other way
+    vp_os_memset(&vrc, 0, sizeof(vrc));
+    navigation_post_stages->stages_list[post_stages_index].name    = "(raw video recorder)";
+    navigation_post_stages->stages_list[post_stages_index].type    = VP_API_FILTER_DECODER;
+    navigation_post_stages->stages_list[post_stages_index].cfg     = (void*)&vrc;
+    navigation_post_stages->stages_list[post_stages_index++].funcs   = video_recorder_funcs;
+    #endif // RECORD_RAW_VIDEO
+
+
+    #if defined(FFMPEG_SUPPORT) && defined(RECORD_FFMPEG_VIDEO)
+    #warning Recording FFMPEG (reencoding)video option enabled in Navigation.
+    vp_os_memset(&ffmpeg_vrc, 0, sizeof(ffmpeg_vrc));
+    ffmpeg_vrc.numframes = &vec.controller.num_frames;
+    ffmpeg_vrc.stage = pipeline.nb_stages;
+    navigation_post_stages->stages_list[post_stages_index].name    = "(ffmpeg recorder)";
+    navigation_post_stages->stages_list[post_stages_index].type    = VP_API_FILTER_DECODER;
+    navigation_post_stages->stages_list[post_stages_index].cfg     = (void*)&ffmpeg_vrc;
+    navigation_post_stages->stages_list[post_stages_index++].funcs   = video_ffmpeg_recorder_funcs;
+    #endif
+
+
+    /*vp_os_memset(&draw_trackers_cfg,         0, sizeof( draw_trackers_funcs ));
+    draw_trackers_cfg.last_decoded_frame_info = (void*)&vec;
+    navigation_post_stages->stages_list[post_stages_index].type    = VP_API_FILTER_DECODER;
+    navigation_post_stages->stages_list[post_stages_index].cfg     = (void*)&draw_trackers_cfg;
+    navigation_post_stages->stages_list[post_stages_index++].funcs   = draw_trackers_funcs;//*/
+
+/*
+    vp_os_memset(&gtkconf,         0, sizeof( gtkconf ));
+    gtkconf.rowstride               = out_picture->width * 3;
+    gtkconf.last_decoded_frame_info = (void*)&vec;
+    gtkconf.desired_display_width   = 0;  // auto 
+    gtkconf.desired_display_height  = 0;  // auto 
+    gtkconf.gdk_interpolation_mode  = 0;  // fastest //*/
+    navigation_post_stages->stages_list[post_stages_index].name    = "(Gtk display)";
+    navigation_post_stages->stages_list[post_stages_index].type    = VP_API_OUTPUT_SDL;
+    navigation_post_stages->stages_list[post_stages_index].cfg     = NULL;
+ //   navigation_post_stages->stages_list[post_stages_index].cfg     = (void*)&gtkconf;
+    navigation_post_stages->stages_list[post_stages_index++].funcs   = vp_stages_output_gtk_funcs;
+
+    //Define the list of stages size
+    navigation_pre_stages->length  = 0;
+    navigation_post_stages->length = post_stages_index;
+
+    params->in_pic = in_picture;
+    params->out_pic = out_picture;
+    params->pre_processing_stages_list  = navigation_pre_stages;
+    params->post_processing_stages_list = navigation_post_stages;
+    params->needSetPriority = 0;
+    params->priority = 0;
+
+    START_THREAD(video_stage, params);
+    video_stage_init();
+    if (2 <= ARDRONE_VERSION ())
+      {
+        START_THREAD (video_recorder, NULL);
+        video_recorder_init ();
+      }
+    else
+      {
+        printf ("Don't start ... version is %d\n", ARDRONE_VERSION ());
+      }
+
+    /************************ END OF VIDEO STAGE CONFIG ***********************/
+    
+  //START_THREAD( video_stage, NULL );
   
   return C_OK;
 }//*/
@@ -79,7 +210,7 @@ C_RESULT ardrone_tool_init_custom(void)
 C_RESULT ardrone_tool_shutdown_custom()
 {
   /* Relinquish all threads of your application */
-  JOIN_THREAD( video_stage );
+    JOIN_THREAD( video_stage );
 	JOIN_THREAD(gui);
 	JOIN_THREAD(imgproc);
 	JOIN_THREAD(ttiofiles);
