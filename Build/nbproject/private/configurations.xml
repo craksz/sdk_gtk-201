@@ -2,6 +2,8 @@
 <configurationDescriptor version="88">
   <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
     <df root="." name="Build">
+      <df name="flight_20131110_003234">
+      </df>
       <df name="gnuplot">
         <df name="a">
         </df>
@@ -27,6 +29,8 @@
         </df>
         <df name="9">
         </df>
+      </df>
+      <df name="media_20131110_003234">
       </df>
       <df name="testing">
         <df name="images">

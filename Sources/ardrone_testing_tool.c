@@ -196,7 +196,7 @@ C_RESULT ardrone_tool_init_custom(void)
       }
     else
       {
-        printf ("Don't start ... version is %d\n", ARDRONE_VERSION ());
+        printf ("Don't start videoRecorder... version is %d\n", ARDRONE_VERSION ());
       }
 
     /************************ END OF VIDEO STAGE CONFIG ***********************/

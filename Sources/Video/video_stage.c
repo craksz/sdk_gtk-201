@@ -145,6 +145,7 @@ C_RESULT output_gtk_stage_transform( void *cfg, vp_api_io_data_t *in, vp_api_io_
   if (gui && gui->cam) // Displaying the image
     gtk_image_set_from_pixbuf(GTK_IMAGE(gui->cam), pixbuf);
   gdk_threads_leave();
+  PRINT("some text\n\n");
   return (SUCCESS);
 }
 
