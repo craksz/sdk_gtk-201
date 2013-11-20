@@ -31,7 +31,10 @@ GENERIC_BINARIES_COMMON_SOURCE_FILES+=			\
    UI/gamepad.c \
    Navdata/navdata.c    \
    ttiofiles/ttiofiles.c    \
-   Video/video_stage.c
+   Video/video_stage.c	\
+   Video/pre_stage.c\
+   Video/post_stage.c\
+   Video/display_stage.c
 
 GENERIC_INCLUDES+=					\
 	$(SRC_DIR) \
@@ -51,7 +54,7 @@ GENERIC_INCLUDES:=$(addprefix -I,$(GENERIC_INCLUDES))
 GENERIC_INCLUDES += `pkg-config --cflags opencv` 
 
 GENERIC_LIB_PATHS=-L$(GENERIC_TARGET_BINARIES_DIR)
-GENERIC_LIBS=-lpc_ardrone -lgtk-x11-2.0 -lrt `pkg-config --libs opencv gthread-2.0`  -lgdk-x11-2.0 -lgdk_pixbuf-2.0 -lgobject-2.0 -lm
+GENERIC_LIBS=-lpc_ardrone -lgtk-x11-2.0 -lrt `pkg-config --libs opencv gthread-2.0`  -lgdk-x11-2.0 -lgdk_pixbuf-2.0 -lgobject-2.0 -lm -lcairo
 
 SDK_FLAGS+="USE_APP=yes"
 SDK_FLAGS+="APP_ID=linux_sdk_demo_netbeans"

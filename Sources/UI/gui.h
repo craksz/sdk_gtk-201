@@ -56,22 +56,6 @@ void init_gui(int argc, char **argv);
 
 void writeOnTextBox(char*);
 
-IplImage *gtkToOcv(uint8_t* data, int useFrontal);//{
-/*  //IplImage *currframe;
-  IplImage *dst;
- 	if (useFrontal==1){
-	  //currframe = cvCreateImage(cvSize(320,240), IPL_DEPTH_8U, 3);
- 		dst = cvCreateImage(cvSize(320,240), IPL_DEPTH_8U, 3);
-  }
-  else {
-  	//currframe = cvCreateImage(cvSize(176,144), IPL_DEPTH_8U, 3);
-  	dst = cvCreateImage(cvSize(176,144), IPL_DEPTH_8U, 3);
-  }
- 
-  dst->imageData = data;
-  cvCvtColor(dst, dst, CV_BGR2RGB);
-  //cvReleaseImage(&currframe);
-  return dst;
-}*/
+IplImage *gtkToOcv(uint8_t* data, int useFrontal);
  
 #endif
