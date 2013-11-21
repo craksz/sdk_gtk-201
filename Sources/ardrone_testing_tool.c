@@ -285,10 +285,10 @@ C_RESULT signal_exit()
 /* Implementing thread table in which you add routines of your application and those provided by the SDK */
 
 
-//PROTO_THREAD_ROUTINE(gui, data);
+PROTO_THREAD_ROUTINE(gtk, data);
 
 BEGIN_THREAD_TABLE
-	//THREAD_TABLE_ENTRY(gui, 20)
+	THREAD_TABLE_ENTRY(gtk, 20)
 	THREAD_TABLE_ENTRY(imgproc, 20)
 	THREAD_TABLE_ENTRY(ttiofiles, 20)
   THREAD_TABLE_ENTRY( ardrone_control, 20 )

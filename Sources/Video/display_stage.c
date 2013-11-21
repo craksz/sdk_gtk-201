@@ -21,6 +21,7 @@
 // GTK/Cairo headers
 #include <cairo.h>
 #include <gtk/gtk.h>
+#include <UI/gui.h>
 
 // Funcs pointer definition
 const vp_api_stage_funcs_t display_stage_funcs = {
@@ -131,20 +132,22 @@ on_expose_event (GtkWidget *widget,
  */
 DEFINE_THREAD_ROUTINE(gtk, data)
 {
+    init_gui(0,NULL);
+    
     GtkWidget *window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 
     display_stage_cfg_t *cfg = (display_stage_cfg_t *)data;
     cfg->widget = window;
 
-    g_signal_connect (window, "expose-event", G_CALLBACK (on_expose_event), data);
+    g_signal_connect (window, "expose-event", G_CALLBACK (on_expose_event), data);/*
     g_signal_connect (window, "destroy", G_CALLBACK (gtk_main_quit), NULL);
 
     gtk_window_set_position (GTK_WINDOW (window), GTK_WIN_POS_CENTER);
     gtk_window_set_default_size (GTK_WINDOW (window), 10, 10);
     gtk_widget_set_app_paintable (window, TRUE);
-    gtk_widget_set_double_buffered (window, FALSE);
+    gtk_widget_set_double_buffered (window, FALSE);//*/
 
-    gtk_widget_show_all (window);
+    //gtk_widget_show_all (window);
 
     gtkRunning = TRUE;
 
