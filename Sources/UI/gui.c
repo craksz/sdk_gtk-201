@@ -332,6 +332,7 @@ void init_gui(int argc, char **argv)
   gui->vbox= gtk_vbox_new(FALSE, 10);
   gui->vbox2= gtk_vbox_new(FALSE, 10);
   gui->cam = gtk_image_new();
+  gtk_widget_set_size_request(gui->cam,176,144);
   gui->classImage = gtk_image_new();
   gui->fuzzyImage = gtk_image_new();
   gui->combo=gtk_combo_box_new_text();

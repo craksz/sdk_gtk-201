@@ -31,7 +31,6 @@ GENERIC_BINARIES_COMMON_SOURCE_FILES+=			\
    UI/gamepad.c \
    Navdata/navdata.c    \
    ttiofiles/ttiofiles.c    \
-   Video/video_stage.c	\
    Video/pre_stage.c\
    Video/post_stage.c\
    Video/display_stage.c

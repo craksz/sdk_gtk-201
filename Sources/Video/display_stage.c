@@ -108,19 +108,24 @@ on_expose_event (GtkWidget *widget,
 
     uint32_t actual_width = 0, actual_height = 0;
     getActualFrameSize (cfg, &actual_width, &actual_height);
-    gtk_window_resize (GTK_WINDOW (widget), actual_width, actual_height);
+    //GtkPixmap *pixmap=gdk_pixmap_new(widget->window,actual_width,actual_height,24);
+    //gtk_window_resize (GTK_WINDOW (widget), actual_width, actual_height);
 
     cairo_t *cr = gdk_cairo_create (widget->window);
 
-    cairo_surface_t *surface = cairo_image_surface_create_for_data (cfg->frameBuffer, CAIRO_FORMAT_RGB16_565, width, height, stride);
+    cairo_surface_t *surface = cairo_image_surface_create_for_data (cfg->frameBuffer, CAIRO_FORMAT_RGB16_565, actual_width, actual_height, stride);
 
-    cairo_set_source_surface (cr, surface, 0.0, 0.0);
+    cairo_set_source_surface (cr, surface, 280.0, 20.0);
 
     cairo_paint (cr);
 
     cairo_surface_destroy (surface);
 
     cairo_destroy (cr);
+    
+    //widget=gtk_image_new_from_pixmap(pixmap,NULL);
+    
+    
 
     return FALSE;
 }
