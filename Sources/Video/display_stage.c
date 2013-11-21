@@ -134,12 +134,13 @@ DEFINE_THREAD_ROUTINE(gtk, data)
 {
     init_gui(0,NULL);
     
-    GtkWidget *window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+    //GtkWidget *window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+    gui_t *gui= get_gui();
+    gui->cfg=(display_stage_cfg_t *)data;
+    display_stage_cfg_t *cfg =gui->cfg; 
+    cfg->widget = gui->cam;
 
-    display_stage_cfg_t *cfg = (display_stage_cfg_t *)data;
-    cfg->widget = window;
-
-    g_signal_connect (window, "expose-event", G_CALLBACK (on_expose_event), data);/*
+    g_signal_connect (gui->cam, "expose-event", G_CALLBACK (on_expose_event), data);/*
     g_signal_connect (window, "destroy", G_CALLBACK (gtk_main_quit), NULL);
 
     gtk_window_set_position (GTK_WINDOW (window), GTK_WIN_POS_CENTER);
