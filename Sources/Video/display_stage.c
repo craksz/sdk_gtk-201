@@ -39,8 +39,8 @@ extern int exit_program;
 
 // Boolean to avoid asking redraw of a not yet created / destroyed window
 bool_t gtkRunning = FALSE;
-static uint8_t*  pixbuf_data       = NULL;
-IplImage* theFrame,*theGFrame;
+    IplImage* theFrame;
+    GdkPixbuf * pixbuf;
 
 // Picture size getter from input buffer size
 // This function only works for RGB565 buffers (i.e. 2 bytes per pixel)
@@ -116,8 +116,25 @@ on_expose_event (GtkWidget *widget,
     //gtk_window_resize (GTK_WINDOW (widget), actual_width, actual_height);
 
     cairo_t *cr = gdk_cairo_create (widget->window);
+    
+    theFrame=gtkToOcv(cfg->frameBuffer,0);
+    
+    
+    /*pixbuf = gdk_pixbuf_new_from_data((const guchar*)theFrame->imageData,
+                    GDK_COLORSPACE_RGB,
+                    FALSE,   // No alpha channel
+                    8,       // 8 bits per pixel
+                    theFrame->width,     // Image width
+                    theFrame->height,     // Image height
+                    theFrame->widthStep, // New pixel every 3 bytes (3channel per pixel)
+                    NULL,    // Function pointers
+                    NULL);
+    gui_t *gui=get_gui();
+    if (gui && gui->cam) // Displaying the image
+    gtk_image_set_from_pixbuf(GTK_IMAGE(gui->cam), pixbuf);//*/
 
-    cairo_surface_t *surface = cairo_image_surface_create_for_data (cfg->frameBuffer, CAIRO_FORMAT_RGB16_565, actual_width, actual_height, stride);
+    //cairo_surface_t *surface = cairo_image_surface_create_for_data (cfg->frameBuffer, CAIRO_FORMAT_RGB16_565, actual_width, actual_height, stride);
+    cairo_surface_t *surface = cairo_image_surface_create_for_data ((uchar *)theFrame->imageData, CAIRO_FORMAT_RGB16_565, actual_width, actual_height, stride);
 
     cairo_set_source_surface (cr, surface, 280.0, 20.0);
 
@@ -126,7 +143,7 @@ on_expose_event (GtkWidget *widget,
     cairo_surface_destroy (surface);
 
     cairo_destroy (cr);
-    
+    //*/
     //widget=gtk_image_new_from_pixmap(pixmap,NULL);
     
     
@@ -149,7 +166,7 @@ DEFINE_THREAD_ROUTINE(gtk, data)
     display_stage_cfg_t *cfg =gui->cfg; 
     cfg->widget = gui->cam;
 
-    //g_signal_connect (gui->cam, "expose-event", G_CALLBACK (on_expose_event), data);
+    g_signal_connect (gui->cam, "expose-event", G_CALLBACK (on_expose_event), data);
     /*
     g_signal_connect (window, "destroy", G_CALLBACK (gtk_main_quit), NULL);
 
@@ -212,27 +229,7 @@ C_RESULT display_stage_transform (display_stage_cfg_t *cfg, vp_api_io_data_t *in
         cfg->frameBuffer = vp_os_realloc (cfg->frameBuffer, in->size);
         cfg->fbSize = in->size;
     }
-    //pixbuf_data      = (uint8_t*)in->buffers[in->indexBuffer];
-    vp_os_memcpy (cfg->frameBuffer, in->buffers[in->indexBuffer], cfg->fbSize);
-    PRINT("%d-------------->\n",cfg->fbSize);
-
-    static GdkPixbuf *pixbuf=NULL;
-
-    pixbuf = gdk_pixbuf_new_from_data(cfg->frameBuffer,
-                      GDK_COLORSPACE_RGB,
-                      FALSE,   // No alpha channel
-                      8,       // 8 bits per pixel
-                      theFrame->width,     // Image width
-                      theFrame->height,     // Image height
-                      cfg->bpp * theFrame->width, // New pixel every 3 bytes (3channel per pixel)
-                      NULL,    // Function pointers
-                      NULL);
-
     
-    gui_t *gui= get_gui();
-    
-    gtk_image_set_from_pixbuf(GTK_IMAGE(gui->cam), pixbuf);
-    /*// Copy last frame to frameBuffer
     vp_os_memcpy (cfg->frameBuffer, in->buffers[in->indexBuffer], cfg->fbSize);
 
     // Ask GTK to redraw the window
