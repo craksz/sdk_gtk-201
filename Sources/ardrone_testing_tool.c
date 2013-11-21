@@ -258,7 +258,6 @@ C_RESULT ardrone_tool_shutdown_custom()
 {
   /* Relinquish all threads of your application */
     JOIN_THREAD( video_stage );
-	//JOIN_THREAD(gui);
 	JOIN_THREAD(imgproc);
 	JOIN_THREAD(ttiofiles);
   /* Unregistering for the current device */

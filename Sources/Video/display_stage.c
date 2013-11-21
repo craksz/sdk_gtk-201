@@ -22,6 +22,8 @@
 #include <cairo.h>
 #include <gtk/gtk.h>
 #include <UI/gui.h>
+#include <cv.h>
+#include <highgui.h>
 
 // Funcs pointer definition
 const vp_api_stage_funcs_t display_stage_funcs = {
