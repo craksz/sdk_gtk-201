@@ -39,6 +39,8 @@ extern int exit_program;
 
 // Boolean to avoid asking redraw of a not yet created / destroyed window
 bool_t gtkRunning = FALSE;
+static uint8_t*  pixbuf_data       = NULL;
+IplImage* theFrame,*theGFrame;
 
 // Picture size getter from input buffer size
 // This function only works for RGB565 buffers (i.e. 2 bytes per pixel)
@@ -147,7 +149,8 @@ DEFINE_THREAD_ROUTINE(gtk, data)
     display_stage_cfg_t *cfg =gui->cfg; 
     cfg->widget = gui->cam;
 
-    g_signal_connect (gui->cam, "expose-event", G_CALLBACK (on_expose_event), data);/*
+    //g_signal_connect (gui->cam, "expose-event", G_CALLBACK (on_expose_event), data);
+    /*
     g_signal_connect (window, "destroy", G_CALLBACK (gtk_main_quit), NULL);
 
     gtk_window_set_position (GTK_WINDOW (window), GTK_WIN_POS_CENTER);
@@ -191,6 +194,8 @@ C_RESULT display_stage_open (display_stage_cfg_t *cfg)
         cfg->fbSize = 0;
         START_THREAD (gtk, cfg);
     }
+    
+	theFrame=cvCreateImage(cvSize(176,144),IPL_DEPTH_8U,3);
     return C_OK;
 }
 
@@ -207,7 +212,27 @@ C_RESULT display_stage_transform (display_stage_cfg_t *cfg, vp_api_io_data_t *in
         cfg->frameBuffer = vp_os_realloc (cfg->frameBuffer, in->size);
         cfg->fbSize = in->size;
     }
-    // Copy last frame to frameBuffer
+    //pixbuf_data      = (uint8_t*)in->buffers[in->indexBuffer];
+    vp_os_memcpy (cfg->frameBuffer, in->buffers[in->indexBuffer], cfg->fbSize);
+    PRINT("%d-------------->\n",cfg->fbSize);
+
+    static GdkPixbuf *pixbuf=NULL;
+
+    pixbuf = gdk_pixbuf_new_from_data(cfg->frameBuffer,
+                      GDK_COLORSPACE_RGB,
+                      FALSE,   // No alpha channel
+                      8,       // 8 bits per pixel
+                      theFrame->width,     // Image width
+                      theFrame->height,     // Image height
+                      cfg->bpp * theFrame->width, // New pixel every 3 bytes (3channel per pixel)
+                      NULL,    // Function pointers
+                      NULL);
+
+    
+    gui_t *gui= get_gui();
+    
+    gtk_image_set_from_pixbuf(GTK_IMAGE(gui->cam), pixbuf);
+    /*// Copy last frame to frameBuffer
     vp_os_memcpy (cfg->frameBuffer, in->buffers[in->indexBuffer], cfg->fbSize);
 
     // Ask GTK to redraw the window
@@ -219,7 +244,7 @@ C_RESULT display_stage_transform (display_stage_cfg_t *cfg, vp_api_io_data_t *in
     }
 
     // Tell the pipeline that we don't have any output
-    out->size = 0;
+    out->size = 0;//*/
 
     return C_OK;
 }
