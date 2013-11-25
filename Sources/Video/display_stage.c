@@ -134,9 +134,13 @@ on_expose_event (GtkWidget *widget,
     gtk_image_set_from_pixbuf(GTK_IMAGE(gui->cam), pixbuf);//*/
 
     //cairo_surface_t *surface = cairo_image_surface_create_for_data (cfg->frameBuffer, CAIRO_FORMAT_RGB16_565, actual_width, actual_height, stride);
+    
+    gui_t *gui=get_gui();
+    int xpos, ypos;
+    gtk_widget_translate_coordinates(widget,gui->window, 150, 0,&xpos, &ypos);
     cairo_surface_t *surface = cairo_image_surface_create_for_data ((uchar *)theFrame->imageData, CAIRO_FORMAT_RGB16_565, actual_width, actual_height, stride);
 
-    cairo_set_source_surface (cr, surface, 280.0, 20.0);
+    cairo_set_source_surface (cr, surface, xpos, ypos);
 
     cairo_paint (cr);
 
