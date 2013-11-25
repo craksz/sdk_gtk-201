@@ -45,7 +45,7 @@ typedef struct gui
   int fpreq;
   int preq;
   int use_contours;
-  int currentNumber;
+  int currentClassValue;
   int segColor;//zero-based red,green,blue respectively
   
 } gui_t;

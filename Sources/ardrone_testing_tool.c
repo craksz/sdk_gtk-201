@@ -131,7 +131,7 @@ C_RESULT ardrone_tool_init_custom(void)
     in_picture->width = 640; // Drone 1 only : Must be greater than the drone 1 picture size (320)
     in_picture->height = 360; // Drone 1 only : Must be greater that the drone 1 picture size (240)
 
-    out_picture->framerate = 20; // Drone 1 only, must be equal to drone target FPS
+    out_picture->framerate = 30; // Drone 1 only, must be equal to drone target FPS
     out_picture->format = PIX_FMT_RGB565; // MANDATORY ! Only RGB24, RGB565 are supported
     out_picture->width = in_picture->width;
     out_picture->height = in_picture->height;
@@ -183,7 +183,6 @@ C_RESULT ardrone_tool_init_custom(void)
      */
     example_pre_stages->stages_list = (vp_api_io_stage_t *)vp_os_calloc (EXAMPLE_PRE_STAGES, sizeof (vp_api_io_stage_t));
     example_post_stages->stages_list = (vp_api_io_stage_t *)vp_os_calloc (EXAMPLE_POST_STAGES, sizeof (vp_api_io_stage_t));
-
     /**
      * Fill the PRE stage list
      * - name and type are debug infos only

@@ -138,7 +138,7 @@ static void ppw_callback (GtkButton* button, GtkWidget* pWindow)
   gtk_window_set_decorated (GTK_WINDOW (popup_window), FALSE);
   gtk_window_set_skip_taskbar_hint (GTK_WINDOW (popup_window), TRUE);
   gtk_window_set_skip_pager_hint (GTK_WINDOW (popup_window), TRUE);
-  gtk_widget_set_size_request (popup_window, lim, lim);
+  gtk_widget_set_size_request (popup_window, HU_MOMENTS_LIMIT, HU_MOMENTS_LIMIT);
   gtk_window_set_transient_for (GTK_WINDOW (popup_window), GTK_WINDOW (pWindow));
   gtk_window_set_position (GTK_WINDOW (popup_window), GTK_WIN_POS_NONE);
 
@@ -226,43 +226,43 @@ static void combo_callback(GtkWidget *widget,GdkEventKey *kevent, gpointer data)
 	gchar *theString=gtk_combo_box_get_active_text (GTK_COMBO_BOX(widget));
 	printf("%s\n",theString);
 	if(strcmp(theString,"c1")==0){
-		gui->currentNumber=1;
+		gui->currentClassValue=1;
 	}
 	else
 	if(strcmp(theString,"c2")==0){
-		gui->currentNumber=2;
+		gui->currentClassValue=2;
 	}
 	else
 	if(strcmp(theString,"c3")==0){
-		gui->currentNumber=3;
+		gui->currentClassValue=3;
 	}
 	else
 	if(strcmp(theString,"c4")==0){
-		gui->currentNumber=4;
+		gui->currentClassValue=4;
 	}
 	else
 	if(strcmp(theString,"c5")==0){
-		gui->currentNumber=5;
+		gui->currentClassValue=5;
 	}
 	else
 	if(strcmp(theString,"c6")==0){
-		gui->currentNumber=6;
+		gui->currentClassValue=6;
 	}
 	else
 	if(strcmp(theString,"c7")==0){
-		gui->currentNumber=7;
+		gui->currentClassValue=7;
 	}
 	else
 	if(strcmp(theString,"c8")==0){
-		gui->currentNumber=8;
+		gui->currentClassValue=8;
 	}
 	else
 	if(strcmp(theString,"c9")==0){
-		gui->currentNumber=9;
+		gui->currentClassValue=9;
 	}
 	else
 	if(strcmp(theString,"c0")==0){
-		gui->currentNumber=0;
+		gui->currentClassValue=0;
 	}
 }
 static void radio_callback(GtkWidget *widget, gpointer data){
@@ -363,7 +363,7 @@ void init_gui(int argc, char **argv)
   gui->textBox= gtk_label_new("this is some text!");
   gui->use_contours=1;
   gui->segColor=0;
-  gui->currentNumber=9;
+  gui->currentClassValue=9;
   
   g_signal_connect(G_OBJECT(gui->window),"destroy",G_CALLBACK(on_destroy),NULL);
   g_signal_connect (gui->sw, "clicked",G_CALLBACK (switch_callback), NULL);

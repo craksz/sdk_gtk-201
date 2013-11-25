@@ -91,6 +91,7 @@ CvVideoWriter *theWriter;
 
 C_RESULT output_gtk_stage_open( void *cfg, vp_api_io_data_t *in, vp_api_io_data_t *out)
 {
+    ttInitVars();
 	/*ttInit(&theModels);
 	
 	char filename[300];

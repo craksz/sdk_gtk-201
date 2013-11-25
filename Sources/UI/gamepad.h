@@ -77,6 +77,8 @@ IplImage *getImage();
 Manual *getManual();
 void clearManual();
 
+void vControlUpdate(ControlVars theVar,double vin);
+
 extern input_device_t fpad;
 
 C_RESULT open_fpad(void);

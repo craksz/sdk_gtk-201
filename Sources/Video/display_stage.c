@@ -40,6 +40,11 @@ extern int exit_program;
 // Boolean to avoid asking redraw of a not yet created / destroyed window
 bool_t gtkRunning = FALSE;
     IplImage* theFrame;
+    IplImage* theGFrame;
+    IplImage* theBFrame;
+    IplImage* theCFrame;
+    IplImage* theCFrame2;
+    IplImage* theBCFrame2;
     GdkPixbuf * pixbuf;
 
 // Picture size getter from input buffer size
@@ -120,20 +125,6 @@ on_expose_event (GtkWidget *widget,
     theFrame=gtkToOcv(cfg->frameBuffer,0);
     
     
-    /*pixbuf = gdk_pixbuf_new_from_data((const guchar*)theFrame->imageData,
-                    GDK_COLORSPACE_RGB,
-                    FALSE,   // No alpha channel
-                    8,       // 8 bits per pixel
-                    theFrame->width,     // Image width
-                    theFrame->height,     // Image height
-                    theFrame->widthStep, // New pixel every 3 bytes (3channel per pixel)
-                    NULL,    // Function pointers
-                    NULL);
-    gui_t *gui=get_gui();
-    if (gui && gui->cam) // Displaying the image
-    gtk_image_set_from_pixbuf(GTK_IMAGE(gui->cam), pixbuf);//*/
-
-    //cairo_surface_t *surface = cairo_image_surface_create_for_data (cfg->frameBuffer, CAIRO_FORMAT_RGB16_565, actual_width, actual_height, stride);
     
     gui_t *gui=get_gui();
     int xpos, ypos;

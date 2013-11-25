@@ -81,24 +81,24 @@ input_device_t fpad = {
 //  FuzzyGP input functions  //
 //////////////////////////////
 
-Manual theControl;
+Manual manualControl;
 IplImage* zvg;// = cvCreateImage(cvSize(300,500),IPL_DEPTH_8U,3); 
 fGraph zg;	
 FILE *datosG;
 	
 
 Manual* getManual(){
-	return &theControl;
+	return &manualControl;
 };
 IplImage* getImage(){
 	return zvg;
 };
 
 void clearManual(){
-	theControl.theta=0;
-	theControl.phi=0;
-	theControl.gaz=0;
-	theControl.yaw=0;
+	manualControl.theta=0;
+	manualControl.phi=0;
+	manualControl.gaz=0;
+	manualControl.yaw=0;
 }
 
         vControl Z;
@@ -127,7 +127,12 @@ vControl* getSomeData(int theVar){
 }
 	
 //static char theString[500];
-	
+
+void vControlUpdate(ControlVars theVar,double vin){
+    vControl * buffControl=getSomeData(theVar);
+    buffControl->vin=vin;
+}
+
 	
 C_RESULT open_fpad(void){
 	
@@ -178,8 +183,8 @@ C_RESULT update_fpad(void){
                                     //yaw/(float)(stick2LR-center_y2)/32767.0f );*/
                                     //printf("++%0.2f++\n",Z.vout);
 	if(heightTestMode==0){
-	  if(theControl.phi!=0||theControl.theta!=0||theControl.gaz!=0||theControl.yaw!=0){
-			ardrone_at_set_progress_cmd( 1,theControl.phi,theControl.theta,theControl.gaz,theControl.yaw);
+	  if(manualControl.phi!=0||manualControl.theta!=0||manualControl.gaz!=0||manualControl.yaw!=0){
+			ardrone_at_set_progress_cmd( 1,manualControl.phi,manualControl.theta,manualControl.gaz,manualControl.yaw);
 			ardrone_at_set_led_animation(FIRE,10,1);
 		}
 		else{

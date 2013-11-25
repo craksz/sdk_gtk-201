@@ -5,18 +5,59 @@
 #include "highgui.h"
 #include "stdio.h"
 #include "UI/gui.h"
+#include "UI/gamepad.h"
 
 
 
-#if useiofiles == 1
+#if USE_TTIOFILES 
 #include "ttiofiles/ttiofiles.h"
 #endif
 
 #define hTolerance 15
 static int segValues[18];
+ttModels theModels;
 CvMemStorage* storage;
 FILE *theFile;
+CvBox2D theBox;
+CvSeq* theContour;
+CvFont theFont;
+CvMoments themoments;
+CvHuMoments thehu;
+CvMoments *theMoments = &themoments;
+CvHuMoments *theHu = &thehu;
+CvVideoWriter *theWriter;
+IplImage * classSpaceFrame;         //labeled mode
+IplImage * outputClassSpaceFrame;   //color mode updated frequently
+IplImage * classSpaceClear;         //color mode backup
+IplImage * outputFrame;         
+IplImage * tempFrame;         
 
+
+
+int ttInitVars(){
+
+	ttInit(&theModels);
+		
+#if VIDEO_SAVE
+	char filename[100];
+	sprintf(filename,
+					"gnuplot/theVid-%2.2f,%2.2f,%2.2f-%2.2f,%2.2f,%2.2f-%2.2f,%2.2f,%2.2f-%2.2f,%2.2f,%2.2f-%d.avi",
+					XGAIN1,XGAIN2,XGAIN3,YGAIN1,YGAIN2,YGAIN3,ZGAIN1,ZGAIN2,ZGAIN3,WGAIN1,WGAIN2,WGAIN3,switchTop);
+				
+	theWriter=cvCreateVideoWriter(filename,CV_FOURCC('M','J','P','G'),25,cvSize(justWidth,justHeight),1);
+#endif
+	tempFrame=cvCreateImage(cvSize(VIDEO_VERT_WIDTH,VIDEO_VERT_HEIGHT),IPL_DEPTH_8U,1);
+    outputFrame=cvCreateImage(cvSize(VIDEO_VERT_WIDTH,VIDEO_VERT_HEIGHT),IPL_DEPTH_8U,3);
+    cvInitFont(&theFont,CV_FONT_HERSHEY_PLAIN,1.0,1.0,0,1,8);
+	classSpaceFrame=cvLoadImage("spaceClasses.bmp",0);
+	outputClassSpaceFrame=cvLoadImage("spaceClasses2.bmp",1);
+	classSpaceClear=cvLoadImage("spaceClasses2.bmp",1);
+    assert(classSpaceFrame!=NULL);
+    assert(outputClassSpaceFrame!=NULL);
+    
+    return 0;
+     
+}
 CvSeq* ttFindContours(IplImage *src){
         
     if(src==NULL){ printf("\nttFindContours null pointer\n\n"); exit(-1); }
@@ -262,7 +303,7 @@ void ttInit(ttModels *theModels){
 	
 	storage  =cvCreateMemStorage(0);
 
-#if useiofiles == 1
+#if USE_TTIOFILES
 		var_t theSegLoader[18]; 
 		loadVars("segVals.dat",theSegLoader);	
 		int i;
@@ -417,3 +458,178 @@ void ttCalibration(IplImage *src){
 	theC++;
 }
 
+IplImage * ttGetClassSpaceImage(){
+    return classSpaceFrame;
+}
+
+IplImage * ttGetOutputClassSpaceImage(){
+    return outputClassSpaceFrame;
+}
+
+void ttResetOutputClassSpaceFrame(){
+    
+ 		cvCopy(classSpaceClear,ttGetOutputClassSpaceImage,NULL);
+}
+
+double ttGetClassValue(int H2, int H1){
+    return cvGetReal2D(ttGetClassSpaceImage(),H2,H1);
+}
+
+double ttGetAndDrawClassValue(int theH1,int theH2){
+        double classValue=0;
+        classValue=ttGetClassValue((int)theH2,(int)theH1);
+        cvCircle(outputClassSpaceFrame,cvPoint((int)theH1,(int)theH2),25,CV_RGB(255,255,255),1,8,0);
+        cvCircle(outputClassSpaceFrame,cvPoint((int)theH1,(int)theH2),15,CV_RGB(0,0,0),1,8,0);
+        cvCircle(outputClassSpaceFrame,cvPoint((int)theH1,(int)theH2),5,CV_RGB(255,255,255),1,8,0);
+        cvCircle(outputClassSpaceFrame,cvPoint((int)theH1,(int)theH2),3,CV_RGB(0,0,0),1,8,0);
+		
+        return classValue;
+}
+
+void ttHueMomentsSetup(CvHuMoments * theHu,float * theH1, float * theH2){
+    
+    *theH1=theHu->hu1*HU_MOMENTS_1_SCALE;
+    *theH2=theHu->hu4*HU_MOMENTS_4_SCALE;
+
+    if(*theH1>HU_MOMENTS_LIMIT) *theH1=HU_MOMENTS_LIMIT-1;
+    if(*theH2>HU_MOMENTS_LIMIT) *theH2=HU_MOMENTS_LIMIT-1;
+    if(*theH1<0) *theH1=0;
+    if(*theH2<0) *theH2=0;
+}
+
+void ttDrawDirections(IplImage * outputFrame,int use_contours){
+    int horMargin=10;
+    int vertMargin=10;
+    vControl *buffControl;
+    buffControl=getSomeData(varX);
+    double xdir=buffControl->vout;
+    buffControl=getSomeData(varY);
+    double ydir=buffControl->vout;
+    Manual *theControl=getManual(); 
+    
+    
+    if(use_contours==1){
+		if(xdir>0)
+			cvCircle(outputFrame,cvPoint(horMargin,VIDEO_VERT_HEIGHT/2),1,CV_RGB(255,255,255),10,8,0);
+		if(xdir<0)
+			cvCircle(outputFrame,cvPoint(VIDEO_VERT_HEIGHT-horMargin,VIDEO_VERT_HEIGHT/2),1,CV_RGB(255,255,255),10,8,0);
+		if(ydir>0)
+			cvCircle(outputFrame,cvPoint(VIDEO_VERT_WIDTH/2,vertMargin),1,CV_RGB(255,255,255),10,8,0);
+		if(ydir<0)
+			cvCircle(outputFrame,cvPoint(VIDEO_VERT_WIDTH/2,VIDEO_VERT_WIDTH-vertMargin),1,CV_RGB(255,255,255),10,8,0);
+			
+		if(theControl->phi>0)
+			cvCircle(outputFrame,cvPoint(horMargin,VIDEO_VERT_HEIGHT/2),1,CV_RGB(255,0,0),10,8,0);
+		if(theControl->phi<0)
+			cvCircle(outputFrame,cvPoint(VIDEO_VERT_HEIGHT-horMargin,VIDEO_VERT_HEIGHT/2),1,CV_RGB(255,0,0),10,8,0);
+		if(theControl->theta>0)
+			cvCircle(outputFrame,cvPoint(VIDEO_VERT_WIDTH/2,vertMargin),1,CV_RGB(255,0,0),10,8,0);
+		if(theControl->theta<0)
+			cvCircle(outputFrame,cvPoint(VIDEO_VERT_WIDTH/2,VIDEO_VERT_WIDTH-vertMargin),1,CV_RGB(255,0,0),10,8,0);
+	}
+}
+
+
+int ttMain(IplImage * theFrame){
+      //OPENCV
+    gui_t *gui = get_gui();
+ 
+    assert(theFrame);
+ 	
+    cvZero(outputFrame);
+    cvZero(tempFrame);
+    cvCvtColor(theFrame,theFrame,CV_RGB2BGR);
+    cvCopy(theFrame,outputFrame,NULL);
+    cvCvtColor(outputClassSpaceFrame,outputClassSpaceFrame,CV_RGB2BGR);
+
+#if TEST_MODE_XY 	
+    static int theCounter=0;
+    static int xyTestModeXDir=1;
+    static int xyTestModeYDir=1;
+    if(theCounter>TEST_MODE_XY_TOP){
+        xyTestModeXDir*=-1;
+        xyTestModeYDir*=-1;
+        //printf("%d\n",theCounter);
+        theCounter=0;
+    }
+    else
+        theCounter++;
+
+    buffControl=getSomeData(varX);
+    buffControl->vin=TEST_MODE_XY_X*xyTestModeXDir;
+    xdir=buffControl->vout;
+
+    buffControl=getSomeData(varY);
+    buffControl->vin=TEST_MODE_XY_Y*xyTestModeYDir;
+    ydir=buffControl->vout;
+#else
+    ttSegmenter(theFrame,tempFrame,gui->segColor);
+    ttImprover(tempFrame,tempFrame);
+    theContour=ttFindContours(tempFrame);
+    if (theContour==NULL)
+        return -1;
+
+    double area=cvContourArea(theContour,CV_WHOLE_SEQ,0);
+    cvContourMoments( theContour , theMoments );
+    cvGetHuMoments( theMoments , theHu );
+    
+    float theH1;
+    float theH2;
+    ttHueMomentsSetup(theHu,&theH1,&theH2);
+
+    char angt[20];
+    double classValue=ttGetAndDrawClassValue((int)theH1,(int)theH2);
+    if(gui->currentClassValue==classValue) 
+        sprintf(angt,"%2.2f, %5.2f :D",classValue,area);
+    else
+        sprintf(angt,"%2.2f, %5.2f :(",classValue,area);
+    cvPutText(outputFrame,angt,cvPoint(10,25),&theFont,CV_RGB(255,255,255));
+ 
+    CvPoint centerPoint,boxCentroid,pa,pb;
+    float sAngle,otroAngle;
+    centerPoint=cvPoint(VIDEO_VERT_WIDTH/2,VIDEO_VERT_HEIGHT/2);
+    theBox=ttFindBox(theContour);
+    boxCentroid=cvPoint(theBox.center.x,theBox.center.y);//*/
+    float theSide;
+    if(gui->use_contours==1){
+        cvCircle(outputFrame,boxCentroid,1,CV_RGB(255,255,255),1,8,0);
+        cvCircle(outputFrame,boxCentroid,6,CV_RGB(0,0,255),1,8,0);
+        cvCircle(outputFrame,centerPoint,1,CV_RGB(0,0,0),1,8,0);
+        cvCircle(outputFrame,centerPoint,6,CV_RGB(255,0,0),1,8,0);
+        cvLine(outputFrame,centerPoint,boxCentroid,CV_RGB(255,255,255),1,8,0);
+        cvDrawContours(outputFrame,theContour,CV_RGB(255,255,255),CV_RGB(255,255,255),1,2,8,cvPoint(0,0));
+    }
+    if(theBox.size.width<theBox.size.height){
+        theSide=theBox.size.width/2;
+        otroAngle=-theBox.angle*PI/180+PI/2;
+        pa=cvPoint(boxCentroid.x+theSide*sin(otroAngle),boxCentroid.y+theSide*cos(otroAngle));
+        pb=cvPoint(boxCentroid.x-theSide*sin(otroAngle),boxCentroid.y-theSide*cos(otroAngle));
+    }
+    else {
+    theSide=theBox.size.height/2;
+        otroAngle=-theBox.angle*PI/180;
+        pa=cvPoint(boxCentroid.x+theSide*sin(otroAngle),boxCentroid.y+theSide*cos(otroAngle));
+        pb=cvPoint(boxCentroid.x-theSide*sin(otroAngle),boxCentroid.y-theSide*cos(otroAngle));
+    }
+    //theSide=theBox.size.width;
+    vControlUpdate(varX,boxCentroid.x-centerPoint.x);
+    vControlUpdate(varY,boxCentroid.y-centerPoint.y);
+
+
+    if(gui->use_contours==1){
+        sAngle=atan2(boxCentroid.y-centerPoint.y,boxCentroid.x-centerPoint.x);
+        sprintf(angt,"%4.2f",otroAngle*180/PI-90);
+        cvPutText(outputFrame,angt,cvPoint(theBox.center.x,theBox.center.y),&theFont,CV_RGB(0,0,0));
+        cvLine(outputFrame,pa,pb,CV_RGB(0,0,0),2,8,0);//*/
+        cvLine(outputFrame,boxCentroid,cvPoint(theBox.center.x+20,theBox.center.y),CV_RGB(255,0,0),1,8,0);
+        cvLine(outputFrame,boxCentroid,cvPoint(theBox.center.x,20+theBox.center.y),CV_RGB(0,0,255),1,8,0);//*/
+        cvLine(outputFrame,centerPoint,cvPoint(centerPoint.x+20,centerPoint.y),CV_RGB(255,0,0),1,8,0);
+        cvLine(outputFrame,centerPoint,cvPoint(centerPoint.x,20+centerPoint.y),CV_RGB(0,0,255),1,8,0);//*/
+    }
+
+    vControlUpdate(varYaw,-otroAngle*180/PI+90);
+#endif
+    ttDrawDirections(outputFrame,gui->use_contours);
+    cvCopy(outputFrame,theFrame,NULL);
+    return 0;
+}
