@@ -82,12 +82,12 @@ static void keyPressed(GtkWidget *widget,GdkEventKey *kevent, gpointer data){
   			ctrlBuff->yaw=-step;
 				break;
  		 	case '+':
- 		 		buffControl=getSomeData(varZ);
+ 		 		buffControl=getVControl(varZ);
  		 		buffControl->ref+=100;
  //		 		printf("newZvalue=%2.2f\n",buffControl->Ref);
 				break;
  		 	case '-':
- 		 		buffControl=getSomeData(varZ);
+ 		 		buffControl=getVControl(varZ);
  		 		buffControl->ref-=100;
  //		 		printf("newZvalue=%2.2f\n",buffControl->Ref);
 				break;
@@ -367,9 +367,9 @@ void init_gui(int argc, char **argv)
   
   g_signal_connect(G_OBJECT(gui->window),"destroy",G_CALLBACK(on_destroy),NULL);
   g_signal_connect (gui->sw, "clicked",G_CALLBACK (switch_callback), NULL);
-  g_signal_connect (gui->red, "clicked",G_CALLBACK (radio_callback), (gpointer)0);
-  g_signal_connect (gui->green, "clicked",G_CALLBACK (radio_callback), (gpointer)1);
-  g_signal_connect (gui->blue, "clicked",G_CALLBACK (radio_callback), (gpointer)2);
+  g_signal_connect (gui->red, "clicked",G_CALLBACK (radio_callback), (gpointer)RED_COLOR);
+  g_signal_connect (gui->green, "clicked",G_CALLBACK (radio_callback), (gpointer)GREEN_COLOR);
+  g_signal_connect (gui->blue, "clicked",G_CALLBACK (radio_callback), (gpointer)BLUE_COLOR);
   g_signal_connect (gui->combo, "changed",G_CALLBACK (combo_callback), NULL);
   g_signal_connect (gui->snap, "clicked",G_CALLBACK (snap_callback), NULL);
   g_signal_connect (gui->popw, "clicked",G_CALLBACK (ppw_callback), NULL);

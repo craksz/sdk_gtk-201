@@ -7,12 +7,6 @@
 #include "UI/gui.h"
 #include "UI/gamepad.h"
 
-
-
-#if USE_TTIOFILES 
-#include "ttiofiles/ttiofiles.h"
-#endif
-
 #define hTolerance 15
 static int segValues[18];
 ttModels theModels;
@@ -52,8 +46,8 @@ int ttInitVars(){
 	classSpaceFrame=cvLoadImage("spaceClasses.bmp",0);
 	outputClassSpaceFrame=cvLoadImage("spaceClasses2.bmp",1);
 	classSpaceClear=cvLoadImage("spaceClasses2.bmp",1);
-    assert(classSpaceFrame!=NULL);
-    assert(outputClassSpaceFrame!=NULL);
+    //assert(classSpaceFrame!=NULL);
+    //assert(outputClassSpaceFrame!=NULL);
     
     return 0;
      
@@ -358,6 +352,15 @@ void ttSegmenter(IplImage *src, IplImage *dst, int color){
     
         if(src==NULL){ printf("\nttSegmenter null pointer\n\n"); exit(-1); }
         if(dst==NULL){ printf("\nttSegmenter dst null pointer\n\n"); exit(-1); }
+        switch(color){
+            case RED_COLOR:
+            case GREEN_COLOR:
+            case BLUE_COLOR:
+                break;
+            default:
+                printf("\nttSegmenter invalid color\n\n");
+                exit(-1);
+        }
 	
 	IplImage *c1,*c2,*c3;
 	int cRange[6];
@@ -459,10 +462,18 @@ void ttCalibration(IplImage *src){
 }
 
 IplImage * ttGetClassSpaceImage(){
+    if(classSpaceFrame==NULL){
+        printf("\nclassSpace null\n\n");
+        exit(C_FAIL);
+    }
     return classSpaceFrame;
 }
 
 IplImage * ttGetOutputClassSpaceImage(){
+    if(outputClassSpaceFrame==NULL){
+        printf("\noutputClassSpace null\n\n");
+        exit(C_FAIL);
+    }
     return outputClassSpaceFrame;
 }
 
@@ -500,12 +511,10 @@ void ttHueMomentsSetup(CvHuMoments * theHu,float * theH1, float * theH2){
 void ttDrawDirections(IplImage * outputFrame,int use_contours){
     int horMargin=10;
     int vertMargin=10;
-    vControl *buffControl;
-    buffControl=getSomeData(varX);
-    double xdir=buffControl->vout;
-    buffControl=getSomeData(varY);
-    double ydir=buffControl->vout;
-    Manual *theControl=getManual(); 
+    double xdir=getVControlVout(varX);
+    double ydir=getVControlVout(varY);
+    float phi=getManualVariable(MANUAL_PHI);
+    float theta=getManualVariable(MANUAL_THETA);
     
     
     if(use_contours==1){
@@ -518,13 +527,13 @@ void ttDrawDirections(IplImage * outputFrame,int use_contours){
 		if(ydir<0)
 			cvCircle(outputFrame,cvPoint(VIDEO_VERT_WIDTH/2,VIDEO_VERT_WIDTH-vertMargin),1,CV_RGB(255,255,255),10,8,0);
 			
-		if(theControl->phi>0)
+		if(phi>0)
 			cvCircle(outputFrame,cvPoint(horMargin,VIDEO_VERT_HEIGHT/2),1,CV_RGB(255,0,0),10,8,0);
-		if(theControl->phi<0)
+		if(phi<0)
 			cvCircle(outputFrame,cvPoint(VIDEO_VERT_HEIGHT-horMargin,VIDEO_VERT_HEIGHT/2),1,CV_RGB(255,0,0),10,8,0);
-		if(theControl->theta>0)
+		if(theta>0)
 			cvCircle(outputFrame,cvPoint(VIDEO_VERT_WIDTH/2,vertMargin),1,CV_RGB(255,0,0),10,8,0);
-		if(theControl->theta<0)
+		if(theta<0)
 			cvCircle(outputFrame,cvPoint(VIDEO_VERT_WIDTH/2,VIDEO_VERT_WIDTH-vertMargin),1,CV_RGB(255,0,0),10,8,0);
 	}
 }
@@ -538,9 +547,12 @@ int ttMain(IplImage * theFrame){
  	
     cvZero(outputFrame);
     cvZero(tempFrame);
+    printf("outputFrame %d %d\n\n",outputFrame->nChannels,outputFrame->width );
+    printf("theFrame %d %d\n\n",theFrame->nChannels,theFrame->width );
     cvCvtColor(theFrame,theFrame,CV_RGB2BGR);
     cvCopy(theFrame,outputFrame,NULL);
-    cvCvtColor(outputClassSpaceFrame,outputClassSpaceFrame,CV_RGB2BGR);
+    //cvCvtColor(outputClassSpaceFrame,outputClassSpaceFrame,CV_RGB2BGR);
+    printf("done!\n\n");
 
 #if TEST_MODE_XY 	
     static int theCounter=0;
@@ -555,19 +567,15 @@ int ttMain(IplImage * theFrame){
     else
         theCounter++;
 
-    buffControl=getSomeData(varX);
-    buffControl->vin=TEST_MODE_XY_X*xyTestModeXDir;
-    xdir=buffControl->vout;
+    vControlUpdate(varX,TEST_MODE_XY_X*xyTestModeXDir);
+    vControlUpdate(varY,TEST_MODE_XY_Y*xyTestModeYDir);
 
-    buffControl=getSomeData(varY);
-    buffControl->vin=TEST_MODE_XY_Y*xyTestModeYDir;
-    ydir=buffControl->vout;
 #else
     ttSegmenter(theFrame,tempFrame,gui->segColor);
     ttImprover(tempFrame,tempFrame);
     theContour=ttFindContours(tempFrame);
     if (theContour==NULL)
-        return -1;
+        return IMG_PROC_ERROR_NO_CONTOURS_FOUND;
 
     double area=cvContourArea(theContour,CV_WHOLE_SEQ,0);
     cvContourMoments( theContour , theMoments );
@@ -630,6 +638,7 @@ int ttMain(IplImage * theFrame){
     vControlUpdate(varYaw,-otroAngle*180/PI+90);
 #endif
     ttDrawDirections(outputFrame,gui->use_contours);
+    cvZero(theFrame);
     cvCopy(outputFrame,theFrame,NULL);
-    return 0;
+    return C_OK;
 }

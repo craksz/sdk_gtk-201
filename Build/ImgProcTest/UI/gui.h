@@ -4,10 +4,10 @@
 //#include "ttiofiles.h"
 #include "ImgProc/ImgProc.h"
 #include "cv.h"
-#include <gtk/gtk.h>
-#include <Video/display_stage.h>
+//#include <gtk/gtk.h>
 
 #define step 0.2
+
 
 typedef enum{
     RED_COLOR=0,
@@ -17,6 +17,7 @@ typedef enum{
 
 typedef struct gui
 {
+/*
   GtkWidget *window;
   GtkWidget *red;
   GtkWidget *green;
@@ -42,7 +43,7 @@ typedef struct gui
   GtkWidget *classImage;
   GtkWidget *fuzzyImage;
   GtkWidget *textBox;
-  display_stage_cfg_t *cfg;
+  display_stage_cfg_t *cfg;//*/
   
   
   int batteryLevel;
@@ -59,7 +60,7 @@ typedef struct gui
  
 gui_t *get_gui();
 
-void saveWorkspace();
+//void saveWorkspace();
  
 void init_gui(int argc, char **argv);
 

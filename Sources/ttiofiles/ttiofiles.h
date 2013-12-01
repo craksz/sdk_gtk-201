@@ -1,3 +1,7 @@
+#ifndef __TTIOFILES_H__
+#define __TTIOFILES_H__
+
+
 #include <string.h>
 #include "stdlib.h"
 #include "stdio.h"
@@ -20,3 +24,6 @@ char* substring(const char* str, size_t begin, size_t len);
 int saveVars(const char *theFile, var_t *vars,int mode);
 
 int loadVars(const char *theFile, var_t *vars);
+
+
+#endif //

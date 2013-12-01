@@ -1,10 +1,15 @@
 #ifndef TT_CONTOURS_H
 
 #define TT_CONTOURS_H
-#define useiofiles 1
+#define USE_TTIOFILES 1
 
 #include "cv.h"
 #include "highgui.h"
+
+
+#if USE_TTIOFILES 
+#include "ttiofiles/ttiofiles.h"
+#endif
 
 #define TEST_MODE_XY            0
 #define TEST_MODE_XY_TOP        15
@@ -29,6 +34,17 @@
 #define VIDEO_VERT_WIDTH        176
 #define VIDEO_VERT_HEIGHT       144
 #define VIDEO_SAVE              0
+
+/*#define IMG_PROC_ERROR_NO_CONTOURS_FOUND            -1;
+#define IMG_PROC_ERROR_                             -2;
+#define IMG_PROC_ERROR_NO_CONTOURS_FOUND            -1;
+//*/
+typedef enum{
+    IMG_PROC_ERROR_NO_CONTOURS_FOUND=-10,
+            IMG_PROC_ERROR_NULL_POINTER,
+            IMG_PROC_ERROR_INVALID_SEG_COLOR
+            
+}IMG_PROC_ERRORS;
 
 
 typedef struct theTTModels{

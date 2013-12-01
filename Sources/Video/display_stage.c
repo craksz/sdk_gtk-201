@@ -126,6 +126,7 @@ on_expose_event (GtkWidget *widget,
     
     
     
+    
     gui_t *gui=get_gui();
     int xpos, ypos;
     gtk_widget_translate_coordinates(widget,gui->window, 150, 0,&xpos, &ypos);

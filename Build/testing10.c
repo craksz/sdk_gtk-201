@@ -1,10 +1,10 @@
+
+#include "ttcontourstest.h"
+
 #include "gtk/gtk.h"
 #include "stdio.h"
 #include "cv.h"
 #include "highgui.h"
-#include "ttcontourstest.h"
-
-
 #define use_webcam 0
 #if use_webcam==1
 

@@ -3,13 +3,14 @@
 #define TT_CONTOURS_H
 #define useiofiles 1
 
+#include "cv.h"
+#include "highgui.h"
+#include "stdio.h"
+
 #if useiofiles == 1
 #include "../Sources/ttiofiles/ttiofiles.c"
 #endif
 
-#include "cv.h"
-#include "highgui.h"
-#include "stdio.h"
 
 
 #define ERR_RESOLUTION 1000000	

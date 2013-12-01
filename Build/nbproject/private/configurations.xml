@@ -67,6 +67,7 @@
       <in>difuso.cpp</in>
       <in>fuzzy.c</in>
       <in>pipeG.c</in>
+      <in>testCairo.c</in>
       <in>tester01.c</in>
       <in>testing01.c</in>
       <in>testing02.c</in>
@@ -96,13 +97,13 @@
       </toolsSet>
       <compile>
         <compiledirpicklist>
-          <compiledirpicklistitem>${AUTO_FOLDER}</compiledirpicklistitem>
           <compiledirpicklistitem>.</compiledirpicklistitem>
+          <compiledirpicklistitem>${AUTO_FOLDER}</compiledirpicklistitem>
         </compiledirpicklist>
         <compiledir>${AUTO_FOLDER}</compiledir>
         <compilecommandpicklist>
-          <compilecommandpicklistitem>${AUTO_COMPILE}</compilecommandpicklistitem>
           <compilecommandpicklistitem>${MAKE} ${ITEM_NAME}.o</compilecommandpicklistitem>
+          <compilecommandpicklistitem>${AUTO_COMPILE}</compilecommandpicklistitem>
         </compilecommandpicklist>
         <compilecommand>${AUTO_COMPILE}</compilecommand>
       </compile>

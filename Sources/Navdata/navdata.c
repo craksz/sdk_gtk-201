@@ -38,25 +38,25 @@ inline C_RESULT demo_navdata_client_process( const navdata_unpacked_t* const nav
 				"\n\nOrientation:\n\t\t\t[Theta]%4.1f\n\t\t\t[Phi]%4.1f\n\t\t\t[Psi] %4.1f\nSpeed:\n\t\t\t[vX]%4.3f\n\t\t\t[vY] %4.3f\n\t\t\t[vZPsi] %4.3f\n",
 				nd->theta/100.0,nd->phi/100.0,nd->psi/100.0,nd->vx,nd->vy,nd->vz);
 		gtk_label_set_text((GtkLabel*)gui->labelR,theString);
-		buffControl=getSomeData(1);
+		buffControl=getVControl(1);
 		sprintf(theString,
 				"\n\nControl %s:\n\t\t\t[Ref]%4.1f\n\t\t\t[Inicial]%4.1f\n\t\t\t[Vout]%1.5f",
 				"x",buffControl->ref,buffControl->vin, buffControl->vout);
 		gtk_label_set_text((GtkLabel*)gui->labelX,theString);
 		
-		buffControl=getSomeData(2);
+		buffControl=getVControl(2);
 		sprintf(theString,
 				"\n\nControl %s:\n\t\t\t[Ref]%4.1f\n\t\t\t[Inicial]%4.1f\n\t\t\t[Vout]%1.5f",
 				"y",buffControl->ref,buffControl->vin, buffControl->vout);
 		gtk_label_set_text((GtkLabel*)gui->labelY,theString);
 		
-		buffControl=getSomeData(3);
+		buffControl=getVControl(3);
 		sprintf(theString,
 				"\n\nControl %s:\n\t\t\t[Ref]%4.1f\n\t\t\t[Inicial]%4.1f\n\t\t\t[Vout]%1.5f",
 				"yaw",buffControl->ref,buffControl->vin, buffControl->vout);
 		gtk_label_set_text((GtkLabel*)gui->labelW,theString);
 		
-		buffControl=getSomeData(4);
+		buffControl=getVControl(4);
 		sprintf(theString,
 				"\n\nControl %s:\n\t\t\t[Ref]%4.1f\n\t\t\t[Inicial]%4.1f\n\t\t\t[Vout]%3.5f",
 				"z",buffControl->ref,buffControl->vin, buffControl->vout);
@@ -67,7 +67,7 @@ inline C_RESULT demo_navdata_client_process( const navdata_unpacked_t* const nav
   theCounter=0;
   }
   else theCounter++;
-  buffControl=getSomeData(4);
+  buffControl=getVControl(4);
   //printf("convive! %0.2f\n",chingao->h[1]);
   buffControl->vin=nd->altitude;
 	//fuzzyControl(buffControl);

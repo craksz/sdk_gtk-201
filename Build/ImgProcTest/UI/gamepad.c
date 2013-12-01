@@ -1,10 +1,3 @@
-/**
- *  \brief    gamepad handling implementation
- *  \author   Sylvain Gaeremynck <sylvain.gaeremynck@parrot.fr>
- *  \version  1.0
- *  \date     04/06/2007
- *  \warning  Subject to completion
- */
 
 #include <errno.h>
 #include <fcntl.h>
@@ -13,12 +6,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#include <linux/joystick.h>
-
-#include <ardrone_api.h>
-#include <VP_Os/vp_os_print.h>
 #include "gamepad.h"
-#include "UI/gui.h"
 
 
 #define heightTop 700
@@ -46,29 +34,9 @@ static C_RESULT add_device(device_t* device, const int32_t id);
 
 static C_RESULT parse_proc_input_devices(FILE* f, const int32_t id);
 
-/*input_device_t gamepad = {
-  "Gamepad",
-  open_gamepad,
-  update_gamepad,
-  close_gamepad
-};*/
 
 static int32_t joy_dev = 0;
 
-/*input_device_t radioGP = {
-  "GreatPlanes",
-  open_radioGP,
-  update_radioGP,
-  close_radioGP
-};/*/
-
-
-/*input_device_t ps3pad = {
-  "PS3Gamepad",
-  open_ps3pad,
-  update_ps3pad,
-  close_ps3pad
-};//*/
 
 input_device_t fpad = {
   "fuzzyPad",
@@ -209,8 +177,8 @@ C_RESULT update_fpad(void){
                                     //printf("++%0.2f++\n",Z.vout);
 	if(heightTestMode==0){
 	  if(manualControl.phi!=0||manualControl.theta!=0||manualControl.gaz!=0||manualControl.yaw!=0){
-			ardrone_at_set_progress_cmd( 1,manualControl.phi,manualControl.theta,manualControl.gaz,manualControl.yaw);
-			ardrone_at_set_led_animation(FIRE,10,1);
+			//ardrone_at_set_progress_cmd( 1,manualControl.phi,manualControl.theta,manualControl.gaz,manualControl.yaw);
+			//ardrone_at_set_led_animation(FIRE,10,1);
 		}
 		else{
 			bringItOn();
@@ -277,12 +245,12 @@ void bringItOn(){
 					Z.vout*=0.125;
 				}
 			if(X.vout!=0||Y.vout!=0){
-				ardrone_at_set_progress_cmd( 1,X.vout,-Y.vout,Z.vout,0);
+				//ardrone_at_set_progress_cmd( 1,X.vout,-Y.vout,Z.vout,0);
 				//counter001++;
 			}
 			else{
 				//counter001=0;
-				ardrone_at_set_progress_cmd( 0,0,0,Z.vout,0);
+				//ardrone_at_set_progress_cmd( 0,0,0,Z.vout,0);
 				//sprintf(theString,"X:\t%0.3f\nY:\t%0.3f\nZ:\t%0.3f\n",-X.vout,Y.vout,Z.vout);
 				//gtk_label_set_text((GtkLabel*)gui->textBox,theString);
 				//printf("%s\n",theString);
@@ -733,6 +701,7 @@ static int32_t make_id(device_t* device)
 
 static C_RESULT add_device(device_t* device, const int32_t id_wanted)
 {
+	/*
   int32_t id = make_id(device);
 
   if( id_wanted == GAMEPAD_LOGICTECH_ID && id == id_wanted)
@@ -754,10 +723,10 @@ static C_RESULT add_device(device_t* device, const int32_t id_wanted)
 		PRINT("PS3 : Input device %s found\n", device->name);
         strncpy(ps3pad.name, device->handlers, MAX_NAME_LENGTH);
         return C_OK;
-  }
+  }//*/
 
   return C_FAIL;
-}
+}//*/
 
 
 
@@ -1035,9 +1004,9 @@ static C_RESULT parse_H(FILE* f)
 static C_RESULT end_device(const int32_t id)
 {
   C_RESULT res = C_FAIL;
-  res=add_device(&current_device, id);
+  /*res=add_device(&current_device, id);
   vp_os_memset( &current_device, 0, sizeof(device_t) );
-
+//*/
   return res;
 }
 
@@ -1045,7 +1014,7 @@ static C_RESULT parse_proc_input_devices(FILE* f, const int32_t id)
 {
   C_RESULT res = C_FAIL;
 
-  next_c = '\0';
+/*  next_c = '\0';
   vp_os_memset( &current_device, 0, sizeof(device_t) );
 
   while( res != C_OK && SUCCEED( fetch_char(f) ) )
@@ -1061,6 +1030,6 @@ static C_RESULT parse_proc_input_devices(FILE* f, const int32_t id)
       default: skip_line(f); break;
     }
   }
-
+//*/
   return res;
 }
