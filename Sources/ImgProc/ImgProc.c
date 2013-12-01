@@ -27,9 +27,9 @@ IplImage * tempFrame;
 
 
 
-int ttInitVars(){
+int ttInitImgProc(void){
 
-	ttInit();
+	ttInitSegValues();
 		
 #if VIDEO_SAVE
 	char filename[100];
@@ -127,7 +127,7 @@ CvSeq* ttFindContours(IplImage *src){
 
 
 
-void ttInit(void){
+void ttInitSegValues(void){
 	
 	storage  =cvCreateMemStorage(0);
 
@@ -365,12 +365,9 @@ int ttMain(IplImage * theFrame){
  	
     cvZero(outputFrame);
     cvZero(tempFrame);
-    printf("outputFrame %d %d\n\n",outputFrame->nChannels,outputFrame->width );
-    printf("theFrame %d %d\n\n",theFrame->nChannels,theFrame->width );
     cvCvtColor(theFrame,theFrame,CV_RGB2BGR);
     cvCopy(theFrame,outputFrame,NULL);
     //cvCvtColor(outputClassSpaceFrame,outputClassSpaceFrame,CV_RGB2BGR);
-    printf("done!\n\n");
 
 #if TEST_MODE_XY 	
     static int theCounter=0;

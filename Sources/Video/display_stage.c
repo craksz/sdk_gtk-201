@@ -125,7 +125,12 @@ on_expose_event (GtkWidget *widget,
     theFrame=gtkToOcv(cfg->frameBuffer,0);
     
     
-    
+    /*if(ttMain(theFrame)==C_OK){
+        
+    }
+    else {
+        theFrame=gtkToOcv(cfg->frameBuffer,0);
+    }//*/
     
     gui_t *gui=get_gui();
     int xpos, ypos;

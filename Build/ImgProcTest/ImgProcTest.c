@@ -16,7 +16,8 @@ void main(int argc, char ** argv){
 		printf("\ngotta provide image path to load\n\n");
 		exit(-1);
 	}
-	ttInitVars();
+	
+	ttInitImgProc();
 	
 	
 	init_gui(0,NULL);

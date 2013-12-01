@@ -50,7 +50,7 @@ typedef enum{
 
 CvSeq* ttFindContours(IplImage * );
 
-void ttInit(void);
+void ttInitSegValues(void);
 
 void ttSegmenter(IplImage *src, IplImage *dst, int color);
 
