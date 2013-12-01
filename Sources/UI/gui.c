@@ -314,8 +314,7 @@ void init_gui(int argc, char **argv)
   gui = vp_os_malloc(sizeof (gui_t));
  
  	//OPENCV
-	ttModels theModels;
-	ttInit(&theModels);
+	ttInit();
 	
   ///OPENCV//*/
   g_thread_init(NULL);

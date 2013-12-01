@@ -47,24 +47,10 @@ typedef enum{
 }IMG_PROC_ERRORS;
 
 
-typedef struct theTTModels{
-	IplImage *model1;
-	IplImage *model2;
-	IplImage *model3;
-	CvSeq* c1;
-	CvSeq* c2;
-	CvSeq* c3;
-	double e1;
-	double e2;
-	double e3;
-} ttModels;
-
 
 CvSeq* ttFindContours(IplImage * );
 
-CvSeq* ttContours(IplImage *src, int mode, ttModels *theModels, double *theErr);
-
-void ttInit(ttModels *theModels);
+void ttInit(void);
 
 void ttSegmenter(IplImage *src, IplImage *dst, int color);
 

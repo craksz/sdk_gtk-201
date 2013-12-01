@@ -5,6 +5,8 @@
 #include "UI/gui.h"
 #include "UI/gamepad.h"
 
+
+
 void main(int argc, char ** argv){
 	int a=1234;
 	IplImage * theFrame;
