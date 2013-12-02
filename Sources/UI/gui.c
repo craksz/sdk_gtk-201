@@ -301,13 +301,7 @@ IplImage *gtkToOcv(uint8_t* data, int useFrontal){
 
 
 
-DEFINE_THREAD_ROUTINE(gui, data) /* gui is the routine's name */
-{
-  //gdk_threads_enter();
-  gtk_main();
-  //gdk_threads_leave();
-  return (THREAD_RET)0;
-}
+
 
 void init_gui(int argc, char **argv)
 {

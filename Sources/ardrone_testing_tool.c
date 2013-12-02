@@ -239,8 +239,16 @@ C_RESULT signal_exit()
 
 /* Implementing thread table in which you add routines of your application and those provided by the SDK */
 
-
-//PROTO_THREAD_ROUTINE(gtk, data);
+DEFINE_THREAD_ROUTINE(gui, data) /* gui is the routine's name */
+{
+  gdk_threads_enter();
+    
+  init_gui(0,NULL);
+    
+  gtk_main();
+  gdk_threads_leave();
+  return (THREAD_RET)0;
+}
 
 BEGIN_THREAD_TABLE
 	THREAD_TABLE_ENTRY(gui, 20)
