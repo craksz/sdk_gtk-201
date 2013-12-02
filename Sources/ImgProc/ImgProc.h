@@ -46,7 +46,7 @@ typedef enum{
             
 }IMG_PROC_ERRORS;
 
-
+int ttInitImgProc(void);
 
 CvSeq* ttFindContours(IplImage * );
 

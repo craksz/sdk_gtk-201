@@ -363,6 +363,7 @@ void init_gui(int argc, char **argv)
   gui->use_contours=1;
   gui->segColor=0;
   gui->currentClassValue=9;
+  gui->ihm_is_initialized=0;
   
   g_signal_connect(G_OBJECT(gui->window),"destroy",G_CALLBACK(on_destroy),NULL);
   g_signal_connect (gui->sw, "clicked",G_CALLBACK (switch_callback), NULL);

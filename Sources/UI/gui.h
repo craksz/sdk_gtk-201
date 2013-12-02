@@ -5,7 +5,6 @@
 #include "ImgProc/ImgProc.h"
 #include "cv.h"
 #include <gtk/gtk.h>
-#include <Video/display_stage.h>
 
 #define step 0.2
 
@@ -42,7 +41,8 @@ typedef struct gui
   GtkWidget *classImage;
   GtkWidget *fuzzyImage;
   GtkWidget *textBox;
-  display_stage_cfg_t *cfg;
+  
+  int ihm_is_initialized;
   
   
   int batteryLevel;
