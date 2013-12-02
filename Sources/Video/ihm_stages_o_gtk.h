@@ -5,6 +5,7 @@
 #include <VP_Api/vp_api_thread_helper.h>
 #include <VP_Api/vp_api.h>
 #include "gtk/gtk.h"
+#include "UI/gui.h"
 
 //#ifdef PC_USE_VISION
 //#include <Vision/vision_tracker_engine.h>
@@ -65,5 +66,6 @@ void update_vision(void);
 void trace_reverse_rgb_h_segment(vp_api_picture_t * picture,int line,int start,int stop);
 void trace_reverse_rgb_v_segment(vp_api_picture_t * picture,int column,int start,int stop);
 void trace_reverse_rgb_rectangle( vp_api_picture_t * picture,screen_point_t center, int width, int height);
+
 
 #endif // _IHM_STAGES_O_GTK_H

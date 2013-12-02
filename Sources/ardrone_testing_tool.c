@@ -74,10 +74,7 @@ DEFINE_THREAD_ROUTINE(ttiofiles, data) /* imgproc is the routine's name */
   return (THREAD_RET)0;
 }
 
-DEFINE_THREAD_ROUTINE(ihm, data) /* imgproc is the routine's name */
-{
-  return (THREAD_RET)0;
-}
+
 
 
 /* Implementing Custom methods for the main function of an ARDrone application */
@@ -96,10 +93,13 @@ C_RESULT ardrone_tool_init_custom(void)
 	  ardrone_tool_input_add( &fpad );
 	  
   //init_gui(0, NULL); /// Creating the GUI 
-	//START_THREAD(gui, NULL); // Starting the GUI thread 
+	START_THREAD(gui, NULL); // Starting the GUI thread 
 	START_THREAD(imgproc,NULL);
 	START_THREAD(ttiofiles,NULL);
-    
+
+    ardrone_application_default_config.video_channel = ZAP_CHANNEL_VERT;
+   // ARDRONE_TOOL_CONFIGURATION_ADDEVENT (video_channel, &ZAP_CHANNEL_VERT, NULL);	
+
     
     /************************ VIDEO STAGE CONFIG ******************************/
 
@@ -142,30 +142,6 @@ C_RESULT ardrone_tool_init_custom(void)
     navigation_post_stages->stages_list[post_stages_index].cfg     = (void*)&vlat;
     navigation_post_stages->stages_list[post_stages_index++].funcs = vp_stages_latency_estimation_funcs;
 
-    #ifdef RECORD_RAW_VIDEO
-    vp_os_memset(&vrc,         0, sizeof( vrc ));
-    #warning Recording RAW video option enabled in Navigation.
-    vrc.stage = 3;
-    #warning We have to get the stage number an other way
-    vp_os_memset(&vrc, 0, sizeof(vrc));
-    navigation_post_stages->stages_list[post_stages_index].name    = "(raw video recorder)";
-    navigation_post_stages->stages_list[post_stages_index].type    = VP_API_FILTER_DECODER;
-    navigation_post_stages->stages_list[post_stages_index].cfg     = (void*)&vrc;
-    navigation_post_stages->stages_list[post_stages_index++].funcs   = video_recorder_funcs;
-    #endif // RECORD_RAW_VIDEO
-
-
-    #if defined(FFMPEG_SUPPORT) && defined(RECORD_FFMPEG_VIDEO)
-    #warning Recording FFMPEG (reencoding)video option enabled in Navigation.
-    vp_os_memset(&ffmpeg_vrc, 0, sizeof(ffmpeg_vrc));
-    ffmpeg_vrc.numframes = &vec.controller.num_frames;
-    ffmpeg_vrc.stage = pipeline.nb_stages;
-    navigation_post_stages->stages_list[post_stages_index].name    = "(ffmpeg recorder)";
-    navigation_post_stages->stages_list[post_stages_index].type    = VP_API_FILTER_DECODER;
-    navigation_post_stages->stages_list[post_stages_index].cfg     = (void*)&ffmpeg_vrc;
-    navigation_post_stages->stages_list[post_stages_index++].funcs   = video_ffmpeg_recorder_funcs;
-    #endif
-
 
     vp_os_memset(&draw_trackers_cfg,         0, sizeof( draw_trackers_funcs ));
     draw_trackers_cfg.last_decoded_frame_info = (void*)&vec;
@@ -198,6 +174,7 @@ C_RESULT ardrone_tool_init_custom(void)
 
     START_THREAD(video_stage, params);
     video_stage_init();
+    video_stage_resume_thread ();
     
     /************************ END OF VIDEO STAGE CONFIG ***********************/
     
@@ -215,6 +192,7 @@ C_RESULT ardrone_tool_shutdown_custom()
   /* Relinquish all threads of your application */
     JOIN_THREAD( video_stage );
 	JOIN_THREAD(imgproc);
+	JOIN_THREAD(gui);
 	JOIN_THREAD(ttiofiles);
   /* Unregistering for the current device */
   

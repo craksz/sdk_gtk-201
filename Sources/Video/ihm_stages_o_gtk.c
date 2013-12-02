@@ -56,20 +56,10 @@
 
 #include <video_encapsulation.h>
 
-extern GtkWidget *ihm_ImageWin, *ihm_ImageEntry[9], *ihm_ImageDA, *ihm_VideoStream_VBox;
-/* For fullscreen video display */
-extern GtkWindow *fullscreen_window;
-extern GtkImage *fullscreen_image;
-extern GdkScreen *fullscreen;
-
-extern int tab_vision_config_params[10];
-extern int vision_config_options;
-extern int image_vision_window_view, image_vision_window_status;
-extern char video_to_play[16];
-
-static GtkImage *image = NULL;
 static GdkPixbuf *pixbuf = NULL;
 static GdkPixbuf *pixbuf2 = NULL;
+
+IplImage *theFrame;
 
 static int32_t pixbuf_width = 0;
 static int32_t pixbuf_height = 0;
@@ -87,45 +77,25 @@ const vp_api_stage_funcs_t vp_stages_output_gtk_funcs = {
     (vp_api_stage_close_t) output_gtk_stage_close
 };
 
-/* Widgets defined in other files */
-extern GtkWidget * ihm_fullScreenFixedContainer;
-extern GtkWidget * ihm_fullScreenHBox;
-//extern GtkWidget * video_information;
+
 
 /* Information about the video pipeline stages */
 extern video_com_multisocket_config_t icc;
 
-extern parrot_video_encapsulation_codecs_t video_stage_decoder_lastDetectedCodec;
-
-extern float DEBUG_nbSlices;
-extern float DEBUG_totalSlices;
-extern int DEBUG_missed;
-extern float DEBUG_fps; // --> a calculer dans le ihm_stages_o_gtk.c
-extern float DEBUG_bitrate;
-extern float DEBUG_latency;
-extern int DEBUG_isTcp;
-
-
 C_RESULT output_gtk_stage_open(vp_stages_gtk_config_t *cfg)//, vp_api_io_data_t *in, vp_api_io_data_t *out)
 {
+    int ttInitImgProc(void);
+
     return (SUCCESS);
 }
 
-void destroy_image_callback(GtkWidget *widget, gpointer data) {
-    image = NULL;
-}
 
 char video_information_buffer[1024];
 int video_information_buffer_index = 0;
 
 C_RESULT output_gtk_stage_transform(vp_stages_gtk_config_t *cfg, vp_api_io_data_t *in, vp_api_io_data_t *out) {
     
-
-    //if (!ihm_is_initialized) return SUCCESS;
-    //if (ihm_ImageWin == NULL) return SUCCESS;
-    //if (image_vision_window_view != WINDOW_VISIBLE) return SUCCESS;
-
-
+    gui_t *gui=get_gui();
     gdk_threads_enter(); //http://library.gnome.org/devel/gdk/stable/gdk-Threads.html
     static struct timeval tvPrev = {0, 0}, tvNow = {0, 0};
     static int nbFramesForCalc = 1;
@@ -149,13 +119,18 @@ C_RESULT output_gtk_stage_transform(vp_stages_gtk_config_t *cfg, vp_api_io_data_
     pixbuf_height = dec_config->src_picture->height;
     pixbuf_rowstride = dec_config->rowstride;
     pixbuf_data = (uint8_t*) in->buffers[in->indexBuffer];
-
+    
+ 	theFrame=gtkToOcv(pixbuf_data,0);
+    if(ttMain(theFrame)!=C_OK){
+        theFrame=gtkToOcv(pixbuf_data,0);
+    }
+    
     if (pixbuf != NULL) {
         g_object_unref(pixbuf);
         pixbuf = NULL;
     }
 
-    pixbuf = gdk_pixbuf_new_from_data(pixbuf_data,
+    pixbuf = gdk_pixbuf_new_from_data((const guchar*)theFrame->imageData,
         GDK_COLORSPACE_RGB,
         FALSE,
         8,
@@ -164,27 +139,6 @@ C_RESULT output_gtk_stage_transform(vp_stages_gtk_config_t *cfg, vp_api_io_data_
         pixbuf_rowstride,
         NULL,
         NULL);
-
-    /*if (fullscreen != NULL && fullscreen_window != NULL) {
-        if (pixbuf2 != NULL) {
-            g_object_unref(pixbuf2);
-            pixbuf2 = NULL;
-        }
-
-        pixbuf2 = gdk_pixbuf_scale_simple(pixbuf,
-            gdk_screen_get_width(fullscreen),
-            gdk_screen_get_height(fullscreen),
-      
-           cfg->gdk_interpolation_mode);
-            
-        if (fullscreen_image != NULL) {
-            gtk_image_set_from_pixbuf(fullscreen_image, pixbuf2);
-            //gtk_widget_show_all (GTK_WIDGET(fullscreen_window));
-            gtk_widget_show(GTK_WIDGET(fullscreen_image));
-            //gtk_widget_show(ihm_fullScreenHBox);
-        }
-    }//*/
-    //else {
 
     if (cfg->desired_display_height != 0 && cfg->desired_display_width != 0) /* 0 and 0 means auto mode */ {
         if (pixbuf2 != NULL) {
@@ -212,73 +166,12 @@ C_RESULT output_gtk_stage_transform(vp_stages_gtk_config_t *cfg, vp_api_io_data_
         pixbuf2 = gdk_pixbuf_copy(pixbuf);
     }
 
-    if (image == NULL && (pixbuf != NULL || pixbuf2 != NULL)) {
-        image = (GtkImage*) gtk_image_new_from_pixbuf((pixbuf2) ? (pixbuf2) : (pixbuf));
-        gtk_signal_connect(GTK_OBJECT(image), "destroy", G_CALLBACK(destroy_image_callback), NULL);
-        //if (GTK_IS_WIDGET(ihm_ImageWin))
-            //if (GTK_IS_WIDGET(ihm_VideoStream_VBox))
-            //    gtk_container_add(GTK_CONTAINER(ihm_VideoStream_VBox), (GtkWidget*) image);
+    if (gui->cam != NULL && (pixbuf != NULL || pixbuf2 != NULL)) {
+        if (!videoPauseStatus) {
+            //gtk_image_set_from_pixbuf(image, (pixbuf2) ? (pixbuf2) : (pixbuf));
+            gtk_image_set_from_pixbuf(GTK_IMAGE(gui->cam), (pixbuf2) ? (pixbuf2) : (pixbuf));
+        }
     }
-    if (image != NULL && (pixbuf != NULL || pixbuf2 != NULL)) {
-        if (!videoPauseStatus) gtk_image_set_from_pixbuf(image, (pixbuf2) ? (pixbuf2) : (pixbuf));
-    }
-    //}
-
-    /*---- Display statistics ----*/
-
-
-    float DEBUG_percentMiss = DEBUG_nbSlices * 100.0 /  DEBUG_totalSlices;
-
-
-    video_information_buffer_index =
-    			snprintf(video_information_buffer,
-					sizeof(video_information_buffer),
-					"%s - %s %dx%d\n",
-					(icc.configs[icc.last_active_socket]->protocol == VP_COM_TCP)?"TCP":(icc.configs[icc.last_active_socket]->protocol == VP_COM_UDP)?"UDP":"?",
-					/*codec*/
-							(video_stage_decoder_lastDetectedCodec == CODEC_MPEG4_AVC )?"H.264":
-							(video_stage_decoder_lastDetectedCodec == CODEC_MPEG4_VISUAL) ? "MP4":
-							(video_stage_decoder_lastDetectedCodec == CODEC_VLIB) ? "VLIB":
-							(video_stage_decoder_lastDetectedCodec == CODEC_P264) ? "P.264": "?",
-							pixbuf_width,pixbuf_height
-					);
-
-    if (video_stage_decoder_lastDetectedCodec == CODEC_MPEG4_AVC )
-    {
-    	video_information_buffer_index+=
-    			snprintf(video_information_buffer+video_information_buffer_index,
-						sizeof(video_information_buffer)-video_information_buffer_index,
-						"Mean missed slices :%6.3f/%2.0f (%5.1f%%)\nMissed frames : %10d\nFPS : %4.1f | Bitrate : %6.2f Kbps\nLatency : %5.1f ms | Protocol : %s",\
-							DEBUG_nbSlices,
-							DEBUG_totalSlices,
-							DEBUG_percentMiss,
-							DEBUG_missed,
-							DEBUG_fps,
-							DEBUG_bitrate,
-							DEBUG_latency,
-							(1 == DEBUG_isTcp) ? "TCP" : "UDP");
-
-    }
-    else
-    {
-    	video_information_buffer_index+=
-    	    			snprintf(video_information_buffer+video_information_buffer_index,
-    							sizeof(video_information_buffer)-video_information_buffer_index,
-    							"Missed frames : %10d\nFPS : %4.1f | Bitrate : %6.2f Kbps\nLatency : %5.1f ms | Protocol : %s",\
-    								DEBUG_missed,
-    								DEBUG_fps,
-    								DEBUG_bitrate,
-    								DEBUG_latency,
-    								(1 == DEBUG_isTcp) ? "TCP" : "UDP");
-
-    }
-
-    /*if (video_information){
-		gtk_label_set_text((GtkLabel *)video_information,(const gchar*)video_information_buffer);
-		gtk_label_set_justify((GtkLabel *)video_information,GTK_JUSTIFY_LEFT);
-    }//*/
-
-    //gtk_widget_show_all(ihm_ImageWin);
     gdk_threads_leave();
 
 
