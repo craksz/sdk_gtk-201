@@ -60,6 +60,7 @@ static GdkPixbuf *pixbuf = NULL;
 static GdkPixbuf *pixbuf2 = NULL;
 
 IplImage *theFrame;
+IplImage *theFrameBackup;
 
 static int32_t pixbuf_width = 0;
 static int32_t pixbuf_height = 0;
@@ -85,6 +86,10 @@ extern video_com_multisocket_config_t icc;
 C_RESULT output_gtk_stage_open(vp_stages_gtk_config_t *cfg)//, vp_api_io_data_t *in, vp_api_io_data_t *out)
 {
     int ttInitImgProc(void);
+    //cvNamedWindow("image",CV_WINDOW_AUTOSIZE);
+	//theFrame=cvCreateImage(cvSize(176,144),IPL_DEPTH_8U,3);
+
+	//theFrameBackup=cvCreateImage(cvSize(176,144),IPL_DEPTH_8U,3);
 
     return (SUCCESS);
 }
@@ -121,16 +126,20 @@ C_RESULT output_gtk_stage_transform(vp_stages_gtk_config_t *cfg, vp_api_io_data_
     pixbuf_data = (uint8_t*) in->buffers[in->indexBuffer];
     
  	theFrame=gtkToOcv(pixbuf_data,0);
+    cvCvtColor(theFrame,theFrame,CV_RGB2BGR);
+    //cvShowImage("image",theFrame);
+ 	/*theFrameBackup=gtkToOcv(pixbuf_data,0);
     if(ttMain(theFrame)!=C_OK){
-        theFrame=gtkToOcv(pixbuf_data,0);
+        cvCopy(theFrameBackup,theFrame,NULL);
     }
-    
+    else cvCvtColor(theFrame,theFrame,CV_RGB2BGR);
+    //*/
     if (pixbuf != NULL) {
         g_object_unref(pixbuf);
         pixbuf = NULL;
     }
 
-    pixbuf = gdk_pixbuf_new_from_data((const guchar*)theFrame->imageData,
+    pixbuf = gdk_pixbuf_new_from_data((uint8_t*)theFrame->imageData,
         GDK_COLORSPACE_RGB,
         FALSE,
         8,
@@ -169,7 +178,11 @@ C_RESULT output_gtk_stage_transform(vp_stages_gtk_config_t *cfg, vp_api_io_data_
     if (gui->cam != NULL && (pixbuf != NULL || pixbuf2 != NULL)) {
         if (!videoPauseStatus) {
             //gtk_image_set_from_pixbuf(image, (pixbuf2) ? (pixbuf2) : (pixbuf));
-            gtk_image_set_from_pixbuf(GTK_IMAGE(gui->cam), (pixbuf2) ? (pixbuf2) : (pixbuf));
+            if(gui->triggerOutput>=1){
+                gtk_image_set_from_pixbuf(GTK_IMAGE(gui->cam), (pixbuf2) ? (pixbuf2) : (pixbuf));
+                gui->triggerOutput=0;
+            }
+            else gui->triggerOutput++;
         }
     }
     gdk_threads_leave();
@@ -179,6 +192,7 @@ C_RESULT output_gtk_stage_transform(vp_stages_gtk_config_t *cfg, vp_api_io_data_
 }
 
 C_RESULT output_gtk_stage_close(vp_stages_gtk_config_t *cfg, vp_api_io_data_t *in, vp_api_io_data_t *out) {
+    //cvDestroyWindow("image");
     return (SUCCESS);
 }
 

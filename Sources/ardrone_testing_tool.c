@@ -33,12 +33,6 @@
 
 #define customPad 1
 
-#ifndef STREAM_WIDTH
-#define STREAM_WIDTH 512
-#endif
-#ifndef STREAM_HEIGHT
-#define STREAM_HEIGHT 512
-#endif
 
 vp_stages_latency_estimation_config_t vlat;
 

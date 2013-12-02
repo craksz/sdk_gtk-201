@@ -279,6 +279,15 @@ static void on_destroy(GtkWidget *widget, gpointer data)
   gtk_main_quit();
 }
  
+
+#ifndef STREAM_WIDTH
+#define STREAM_WIDTH 512
+#endif
+#ifndef STREAM_HEIGHT
+#define STREAM_HEIGHT 512
+#endif
+
+
 IplImage *gtkToOcv(uint8_t* data, int useFrontal){
   //IplImage *currframe;
         assert(data!=NULL);
@@ -289,10 +298,10 @@ IplImage *gtkToOcv(uint8_t* data, int useFrontal){
         }
         else {
                 //currframe = cvCreateImage(cvSize(176,144), IPL_DEPTH_8U, 3);
-                dst = cvCreateImage(cvSize(176,144), IPL_DEPTH_8U, 3);
+                dst = cvCreateImage(cvSize(STREAM_WIDTH,STREAM_HEIGHT), IPL_DEPTH_8U, 3);
         }
  
-        dst->imageData = (char*)data;
+        dst->imageData = data;
         cvCvtColor(dst, dst, CV_BGR2RGB);
         //cvReleaseImage(&currframe);
         return dst;
@@ -358,6 +367,7 @@ void init_gui(int argc, char **argv)
   gui->segColor=0;
   gui->currentClassValue=9;
   gui->ihm_is_initialized=0;
+  gui->triggerOutput=0;
   
   g_signal_connect(G_OBJECT(gui->window),"destroy",G_CALLBACK(on_destroy),NULL);
   g_signal_connect (gui->sw, "clicked",G_CALLBACK (switch_callback), NULL);

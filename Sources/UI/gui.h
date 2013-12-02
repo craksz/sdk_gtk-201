@@ -8,6 +8,15 @@
 
 #define step 0.2
 
+
+#ifndef STREAM_WIDTH
+#define STREAM_WIDTH 512
+#endif
+#ifndef STREAM_HEIGHT
+#define STREAM_HEIGHT 512
+#endif
+
+
 typedef enum{
     RED_COLOR=0,
     GREEN_COLOR,
@@ -43,7 +52,7 @@ typedef struct gui
   GtkWidget *textBox;
   
   int ihm_is_initialized;
-  
+  int triggerOutput;
   
   int batteryLevel;
   
