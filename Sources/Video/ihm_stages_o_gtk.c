@@ -61,6 +61,7 @@ static GdkPixbuf *pixbuf2 = NULL;
 
 IplImage *theFrame;
 IplImage *theFrameBackup;
+CvRect theRoi;
 
 static int32_t pixbuf_width = 0;
 static int32_t pixbuf_height = 0;
@@ -86,6 +87,7 @@ extern video_com_multisocket_config_t icc;
 C_RESULT output_gtk_stage_open(vp_stages_gtk_config_t *cfg)//, vp_api_io_data_t *in, vp_api_io_data_t *out)
 {
     int ttInitImgProc(void);
+    theRoi=cvRect(0,0,176,144);
     //cvNamedWindow("image",CV_WINDOW_AUTOSIZE);
 	//theFrame=cvCreateImage(cvSize(176,144),IPL_DEPTH_8U,3);
 
@@ -126,13 +128,16 @@ C_RESULT output_gtk_stage_transform(vp_stages_gtk_config_t *cfg, vp_api_io_data_
     pixbuf_data = (uint8_t*) in->buffers[in->indexBuffer];
     
  	theFrame=gtkToOcv(pixbuf_data,0);
+    cvSetImageROI(theFrame,theRoi);
     cvCvtColor(theFrame,theFrame,CV_RGB2BGR);
     //cvShowImage("image",theFrame);
- 	/*theFrameBackup=gtkToOcv(pixbuf_data,0);
+ 	theFrameBackup=gtkToOcv(pixbuf_data,0);
     if(ttMain(theFrame)!=C_OK){
+        cvResetImageROI(theFrame);
         cvCopy(theFrameBackup,theFrame,NULL);
+    //printf("\nTTihm OK\n\n");
     }
-    else cvCvtColor(theFrame,theFrame,CV_RGB2BGR);
+    //else cvCvtColor(theFrame,theFrame,CV_RGB2BGR);
     //*/
     if (pixbuf != NULL) {
         g_object_unref(pixbuf);
@@ -193,6 +198,7 @@ C_RESULT output_gtk_stage_transform(vp_stages_gtk_config_t *cfg, vp_api_io_data_
 
 C_RESULT output_gtk_stage_close(vp_stages_gtk_config_t *cfg, vp_api_io_data_t *in, vp_api_io_data_t *out) {
     //cvDestroyWindow("image");
+    cvReleaseImage(&theFrame);
     return (SUCCESS);
 }
 

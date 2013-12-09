@@ -45,6 +45,7 @@ int ttInitImgProc(void){
 	classSpaceFrame=cvLoadImage("spaceClasses.bmp",0);
 	outputClassSpaceFrame=cvLoadImage("spaceClasses2.bmp",1);
 	classSpaceClear=cvLoadImage("spaceClasses2.bmp",1);
+    printf("\nTTINIT OK\n\n");
     //assert(classSpaceFrame!=NULL);
     //assert(outputClassSpaceFrame!=NULL);
     
@@ -361,12 +362,15 @@ int ttMain(IplImage * theFrame){
       //OPENCV
     gui_t *gui = get_gui();
  
-    assert(theFrame);
+    assert(theFrame!=NULL);
+    assert(outputFrame!=NULL);
+    assert(tempFrame!=NULL);
  	
     cvZero(outputFrame);
     cvZero(tempFrame);
     cvCvtColor(theFrame,theFrame,CV_RGB2BGR);
     cvCopy(theFrame,outputFrame,NULL);
+    //printf("\nTTcopy OK\n\n");
     //cvCvtColor(outputClassSpaceFrame,outputClassSpaceFrame,CV_RGB2BGR);
 
 #if TEST_MODE_XY 	
