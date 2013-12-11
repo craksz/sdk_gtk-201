@@ -135,7 +135,6 @@ C_RESULT output_gtk_stage_transform(vp_stages_gtk_config_t *cfg, vp_api_io_data_
     cvSetImageROI(theFrame,theRoi);
     //cvCvtColor(theFrame,theFrame,CV_RGB2BGR);
     if(ttMain(theFrame)!=C_OK){
-        cvResetImageROI(theFrame);
         cvZero(theFrame);
         if(gtkToOcv(pixbuf_data,theFrame)!=C_OK){
             return C_FAIL;
@@ -143,18 +142,6 @@ C_RESULT output_gtk_stage_transform(vp_stages_gtk_config_t *cfg, vp_api_io_data_
         //cvCvtColor(theFrame,theFrame,CV_RGB2BGR);
  	//printf("\nTTihm OK\n\n");
     }//*/
-    if(gui->saveSnapshot==1){
-        char string[30];
-        
-        if(gui->counter<10)
-            sprintf(string,"images/image0%d.jpg",gui->counter);
-        else
-            sprintf(string,"images/image%d.jpg",gui->counter);
-		
-        gui->counter++;	
-        gui->saveSnapshot=0;
-    	cvSaveImage(string,theFrame,0);
-    }
     //else cvCvtColor(theFrame,theFrame,CV_RGB2BGR);
     //*/
     if (pixbuf != NULL) {
@@ -207,6 +194,20 @@ C_RESULT output_gtk_stage_transform(vp_stages_gtk_config_t *cfg, vp_api_io_data_
             }
             else gui->triggerOutput++;
         }
+    }
+    
+    if(gui->saveSnapshot==1){
+        char string[30];
+        
+        if(gui->counter<10)
+            sprintf(string,"images/image0%d.jpg",gui->counter);
+        else
+            sprintf(string,"images/image%d.jpg",gui->counter);
+		
+        gui->counter++;	
+        gui->saveSnapshot=0;
+        cvCvtColor(theFrame,theFrame,CV_RGB2BGR);
+    	cvSaveImage(string,theFrame,0);
     }
     gdk_threads_leave();
     //cvReleaseImage(&theFrame);

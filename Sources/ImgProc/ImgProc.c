@@ -298,7 +298,7 @@ IplImage * ttGetOutputClassSpaceImage(){
 
 void ttResetOutputClassSpaceFrame(){
     
- 		cvCopy(classSpaceClear,ttGetOutputClassSpaceImage,NULL);
+ 		cvCopy(classSpaceClear,outputClassSpaceFrame,NULL);
 }
 
 double ttGetClassValue(int H2, int H1){
@@ -308,11 +308,27 @@ double ttGetClassValue(int H2, int H1){
 double ttGetAndDrawClassValue(int theH1,int theH2){
         double classValue=0;
         classValue=ttGetClassValue((int)theH2,(int)theH1);
+		ttResetOutputClassSpaceFrame();
         cvCircle(outputClassSpaceFrame,cvPoint((int)theH1,(int)theH2),25,CV_RGB(255,255,255),1,8,0);
         cvCircle(outputClassSpaceFrame,cvPoint((int)theH1,(int)theH2),15,CV_RGB(0,0,0),1,8,0);
         cvCircle(outputClassSpaceFrame,cvPoint((int)theH1,(int)theH2),5,CV_RGB(255,255,255),1,8,0);
         cvCircle(outputClassSpaceFrame,cvPoint((int)theH1,(int)theH2),3,CV_RGB(0,0,0),1,8,0);
-		
+        
+        gui_t* gui=get_gui();
+        //if(gui->classImageWidgetReq==1){		
+            GdkPixbuf * pixbuf;
+            pixbuf = gdk_pixbuf_new_from_data((uint8_t*)outputClassSpaceFrame->imageData,
+                GDK_COLORSPACE_RGB,
+                FALSE,
+                8,
+                outputClassSpaceFrame->width,
+                outputClassSpaceFrame->height,
+                outputClassSpaceFrame->widthStep,
+                NULL,
+                NULL);
+
+            gtk_image_set_from_pixbuf(GTK_IMAGE(gui->classImage),pixbuf);
+        //}
         return classValue;
 }
 

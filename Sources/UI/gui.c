@@ -117,84 +117,84 @@ gboolean on_popup_focus_out (GtkWidget *widget,GdkEventFocus *event,gpointer dat
 	
 	//printf("ASDFASDFA %d",t);
   gtk_widget_hide (widget);
-  if(t==0)
-  gui->popup=1;
+/*  if(t==CLASS_IMAGE_WIDGET)
+    gui->classImageWidgetInit=1;
   else 
-  gui->fpopup=1;
-  gui->fpreq=0;
-  gui->preq=0;
+    gui->fuzzyControlGraphWidgetInit=1;//*/
+  gui->fuzzyControlGraphWidgetReq=0;
+  gui->classImageWidgetReq=0;
   
   return TRUE;
 }
 
-static void ppw_callback (GtkButton* button, GtkWidget* pWindow)
-{
-	if(gui->popup!=1){
+static void classImageDisplay (GtkButton* button, GtkWidget* pWindow){
+	if(gui->classImageWidgetInit!=1){
+        popup_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+        gtk_window_set_title (GTK_WINDOW (popup_window), "Pop Up window");
+        gtk_container_set_border_width (GTK_CONTAINER (popup_window), 10);
+        gtk_window_set_resizable (GTK_WINDOW (popup_window), FALSE);
+        gtk_window_set_decorated (GTK_WINDOW (popup_window), FALSE);
+        gtk_window_set_skip_taskbar_hint (GTK_WINDOW (popup_window), TRUE);
+        gtk_window_set_skip_pager_hint (GTK_WINDOW (popup_window), TRUE);
+        gtk_widget_set_size_request (popup_window, HU_MOMENTS_LIMIT, HU_MOMENTS_LIMIT);
+        gtk_window_set_transient_for (GTK_WINDOW (popup_window), GTK_WINDOW (pWindow));
+        gtk_window_set_position (GTK_WINDOW (popup_window), GTK_WIN_POS_NONE);
 
-  popup_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_title (GTK_WINDOW (popup_window), "Pop Up window");
-  gtk_container_set_border_width (GTK_CONTAINER (popup_window), 10);
-  gtk_window_set_resizable (GTK_WINDOW (popup_window), FALSE);
-  gtk_window_set_decorated (GTK_WINDOW (popup_window), FALSE);
-  gtk_window_set_skip_taskbar_hint (GTK_WINDOW (popup_window), TRUE);
-  gtk_window_set_skip_pager_hint (GTK_WINDOW (popup_window), TRUE);
-  gtk_widget_set_size_request (popup_window, HU_MOMENTS_LIMIT, HU_MOMENTS_LIMIT);
-  gtk_window_set_transient_for (GTK_WINDOW (popup_window), GTK_WINDOW (pWindow));
-  gtk_window_set_position (GTK_WINDOW (popup_window), GTK_WIN_POS_NONE);
+        gtk_widget_set_events (popup_window, GDK_FOCUS_CHANGE_MASK);
+        g_signal_connect (G_OBJECT (popup_window),
+                          "focus-out-event",
+                          G_CALLBACK (on_popup_focus_out),
+                          (gpointer)CLASS_IMAGE_WIDGET);
 
-  gtk_widget_set_events (popup_window, GDK_FOCUS_CHANGE_MASK);
-  g_signal_connect (G_OBJECT (popup_window),
-                    "focus-out-event",
-                    G_CALLBACK (on_popup_focus_out),
-                    (gpointer)0);
-	
-  GdkColor color;
-  gdk_color_parse ("#000000", &color);
-  gtk_widget_modify_bg (GTK_WIDGET (popup_window), GTK_STATE_NORMAL, &color);
-	
-	gtk_container_add(GTK_CONTAINER(popup_window),gui->classImage);
-  gtk_widget_show_all (popup_window);
-  gtk_widget_grab_focus (popup_window);
-  }
-  else{
+        GdkColor color;
+        gdk_color_parse ("#000000", &color);
+        gtk_widget_modify_bg (GTK_WIDGET (popup_window), GTK_STATE_NORMAL, &color);
+        gtk_container_add(GTK_CONTAINER(popup_window),gui->classImage);
+        gtk_widget_show_all (popup_window);
+        gtk_widget_grab_focus (popup_window);
+        gui->classImageWidgetInit=1;
+    }
+    else{
 		gtk_widget_show(popup_window);
-	}
-	gui->preq=1;
+    }
+	gui->classImageWidgetReq=1;
 }
 
-static void fppw_callback (GtkButton* button, GtkWidget* pWindow)
+static void fuzzyImageDisplay (GtkButton* button, GtkWidget* pWindow)
 {
-	if(gui->fpopup!=1){
+	if(gui->fuzzyControlGraphWidgetInit!=1){
 
-  fpopup_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_title (GTK_WINDOW (fpopup_window), "Pop Up window");
-  gtk_container_set_border_width (GTK_CONTAINER (fpopup_window), 5);
-  gtk_window_set_resizable (GTK_WINDOW (fpopup_window), FALSE);
-  gtk_window_set_decorated (GTK_WINDOW (fpopup_window), FALSE);
-  gtk_window_set_skip_taskbar_hint (GTK_WINDOW (fpopup_window), TRUE);
-  gtk_window_set_skip_pager_hint (GTK_WINDOW (fpopup_window), TRUE);
-  gtk_widget_set_size_request (fpopup_window, 600, 600);
-  gtk_window_set_transient_for (GTK_WINDOW (fpopup_window), GTK_WINDOW (pWindow));
-  gtk_window_set_position (GTK_WINDOW (fpopup_window), GTK_WIN_POS_NONE);
+    fpopup_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_title (GTK_WINDOW (fpopup_window), "Pop Up window");
+    gtk_container_set_border_width (GTK_CONTAINER (fpopup_window), 5);
+    gtk_window_set_resizable (GTK_WINDOW (fpopup_window), FALSE);
+    gtk_window_set_decorated (GTK_WINDOW (fpopup_window), FALSE);
+    gtk_window_set_skip_taskbar_hint (GTK_WINDOW (fpopup_window), TRUE);
+    gtk_window_set_skip_pager_hint (GTK_WINDOW (fpopup_window), TRUE);
+    gtk_widget_set_size_request (fpopup_window, 600, 600);
+    gtk_window_set_transient_for (GTK_WINDOW (fpopup_window), GTK_WINDOW (pWindow));
+    gtk_window_set_position (GTK_WINDOW (fpopup_window), GTK_WIN_POS_NONE);
 
-  gtk_widget_set_events (fpopup_window, GDK_FOCUS_CHANGE_MASK);
-  g_signal_connect (G_OBJECT (fpopup_window),
-                    "focus-out-event",
-                    G_CALLBACK (on_popup_focus_out),
-                    (gpointer)1);
-	
-  GdkColor color;
-  gdk_color_parse ("#ffffff", &color);
-  gtk_widget_modify_bg (GTK_WIDGET (fpopup_window), GTK_STATE_NORMAL, &color);
-	
-	gtk_container_add(GTK_CONTAINER(fpopup_window),gui->fuzzyImage);
-  gtk_widget_show_all (fpopup_window);
-  gtk_widget_grab_focus (fpopup_window);
-  }
-  else{
+    gtk_widget_set_events (fpopup_window, GDK_FOCUS_CHANGE_MASK);
+    g_signal_connect (G_OBJECT (fpopup_window),
+                      "focus-out-event",
+                      G_CALLBACK (on_popup_focus_out),
+                      (gpointer)FUZZY_CONTROL_GRAPH_WIDGET);
+
+    GdkColor color;
+    gdk_color_parse ("#ffffff", &color);
+    gtk_widget_modify_bg (GTK_WIDGET (fpopup_window), GTK_STATE_NORMAL, &color);
+
+    gtk_container_add(GTK_CONTAINER(fpopup_window),gui->fuzzyImage);
+    gtk_widget_show_all (fpopup_window);
+    gtk_widget_grab_focus (fpopup_window);
+    
+    gui->fuzzyControlGraphWidgetInit=1; 
+    }
+    else{
 		gtk_widget_show(fpopup_window);
 	}
-		gui->fpreq=1;
+	gui-> fuzzyControlGraphWidgetReq=1;
 }
 
 ///////////////////////////////////////////////////////////////
@@ -203,33 +203,10 @@ static void fppw_callback (GtkButton* button, GtkWidget* pWindow)
 static void switch_callback(GtkWidget *widget,gpointer   data ){
 	gui->use_contours++;
 	gui->use_contours%=2;
-	//printf("++%d++\n",gui->use_contours);
+    return;
 }
+
 static void snap_callback(GtkWidget *widget,gpointer   data ){	
-	/*static int counter=0;
-	char string[100];
-    const GdkPixbuf * pixbuf = gtk_image_get_pixbuf(GTK_IMAGE(gui->cam));
-   	IplImage * frame=cvCreateImage(cvSize(STREAM_WIDTH,STREAM_HEIGHT),IPL_DEPTH_8U,3);
-	uint8_t * imgdata=gdk_pixbuf_get_pixels(pixbuf);
-    printf("\nthing<--------------------------\n\n");
-	assert(pixbuf!=NULL);
-	assert(frame!=NULL);
-	assert(imgdata!=NULL);
-    
-    printf("\nthing<--------------------------\n\n");
-	
-    gtkToOcv((uint8_t *)imgdata,frame);
-	
-    printf("\nthing<--------------------------\n\n");
-	
-    if(counter<10)
-		sprintf(string,"images/image0%d.jpg",counter);
-	else
-		sprintf(string,"images/image%d.jpg",counter);
-		
-	counter++;	
-	cvSaveImage(string,frame,0);
-    cvReleaseImage(&frame);//*/
     gui->saveSnapshot=1;
     return;
 }
@@ -284,12 +261,11 @@ static void radio_callback(GtkWidget *widget, gpointer data){
 	//printf("ayquir... %d\n",t);
 	
 }
-static void on_destroy(GtkWidget *widget, gpointer data)
-{
-	saveWorkspace();
-  vp_os_free(gui);
-  exit(0);
-  gtk_main_quit();
+static void on_destroy(GtkWidget *widget, gpointer data){
+      saveWorkspace();
+      vp_os_free(gui);
+      gtk_main_quit();
+      exit(0);
 }
  
 
@@ -374,6 +350,12 @@ void init_gui(int argc, char **argv)
   gui->saveSnapshot=0;
   gui->counter=0;
   
+  gui-> classImageWidgetInit=0;
+  gui-> fuzzyControlGraphWidgetInit=0;
+  gui-> classImageWidgetReq=0;
+  gui-> fuzzyControlGraphWidgetReq=0;
+  
+  
   g_signal_connect(G_OBJECT(gui->window),"destroy",G_CALLBACK(on_destroy),NULL);
   g_signal_connect (gui->sw, "clicked",G_CALLBACK (switch_callback), NULL);
   g_signal_connect (gui->red, "clicked",G_CALLBACK (radio_callback), (gpointer)RED_COLOR);
@@ -381,8 +363,8 @@ void init_gui(int argc, char **argv)
   g_signal_connect (gui->blue, "clicked",G_CALLBACK (radio_callback), (gpointer)BLUE_COLOR);
   g_signal_connect (gui->combo, "changed",G_CALLBACK (combo_callback), NULL);
   g_signal_connect (gui->snap, "clicked",G_CALLBACK (snap_callback), NULL);
-  g_signal_connect (gui->popw, "clicked",G_CALLBACK (ppw_callback), NULL);
-  g_signal_connect (gui->fuzzyGraph, "clicked",G_CALLBACK (fppw_callback), NULL);
+  g_signal_connect (gui->popw, "clicked",G_CALLBACK (classImageDisplay), NULL);
+  g_signal_connect (gui->fuzzyGraph, "clicked",G_CALLBACK (fuzzyImageDisplay), NULL);
   g_signal_connect(G_OBJECT(gui->window), "key_press_event", G_CALLBACK(keyPressed),gui->window);
   g_signal_connect(G_OBJECT(gui->window), "key_release_event", G_CALLBACK(keyPressed),gui->window);
   

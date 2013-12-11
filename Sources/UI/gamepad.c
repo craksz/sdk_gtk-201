@@ -388,6 +388,22 @@ void fuzzyGraph( fGraph *gX, IplImage *graph ){
 
 ////////////////
 	gX->counter++;
+    
+    gui_t *gui=get_gui();
+    if(gui->fuzzyControlGraphWidgetReq==1){	
+        GdkPixbuf * pixbuf;	
+  		pixbuf = gdk_pixbuf_new_from_data((const guchar*)graph->imageData,
+                    GDK_COLORSPACE_RGB,
+                    FALSE,  
+                    8,     
+                    graph->width,    
+                    graph->height,     
+                    graph->widthStep, 
+                    NULL,    
+                    NULL);
+                              
+        gtk_image_set_from_pixbuf(GTK_IMAGE(gui->fuzzyImage), pixbuf);
+    }//*/
 }
 
 void fuzzyControl ( vControl *altitud, vControl *X, vControl *Y, vControl *Yaw ){

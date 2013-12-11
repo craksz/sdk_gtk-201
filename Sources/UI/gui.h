@@ -24,6 +24,11 @@ typedef enum{
     BLUE_COLOR
 }SegColors;
 
+typedef enum{
+    CLASS_IMAGE_WIDGET=0,
+    FUZZY_CONTROL_GRAPH_WIDGET
+}popUpWindows;
+
 typedef struct gui
 {
   GtkWidget *window;
@@ -57,10 +62,10 @@ typedef struct gui
   
   int batteryLevel;
   
-  int popup;
-  int fpopup;
-  int fpreq;
-  int preq;
+  int classImageWidgetInit;
+  int fuzzyControlGraphWidgetInit;
+  int classImageWidgetReq;
+  int fuzzyControlGraphWidgetReq;
   int use_contours;
   int currentClassValue;
   int segColor;//zero-based red,green,blue respectively
