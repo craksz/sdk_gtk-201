@@ -206,19 +206,32 @@ static void switch_callback(GtkWidget *widget,gpointer   data ){
 	//printf("++%d++\n",gui->use_contours);
 }
 static void snap_callback(GtkWidget *widget,gpointer   data ){	
-	static int counter=0;
-	char string[19];
-	guchar * imgdata=gdk_pixbuf_get_pixels(gtk_image_get_pixbuf(GTK_IMAGE(gui->cam)));
-	IplImage * frame=gtkToOcv((uint8_t*)imgdata,0);
-	
+	/*static int counter=0;
+	char string[100];
+    const GdkPixbuf * pixbuf = gtk_image_get_pixbuf(GTK_IMAGE(gui->cam));
+   	IplImage * frame=cvCreateImage(cvSize(STREAM_WIDTH,STREAM_HEIGHT),IPL_DEPTH_8U,3);
+	uint8_t * imgdata=gdk_pixbuf_get_pixels(pixbuf);
+    printf("\nthing<--------------------------\n\n");
+	assert(pixbuf!=NULL);
 	assert(frame!=NULL);
-	if(counter<10)
+	assert(imgdata!=NULL);
+    
+    printf("\nthing<--------------------------\n\n");
+	
+    gtkToOcv((uint8_t *)imgdata,frame);
+	
+    printf("\nthing<--------------------------\n\n");
+	
+    if(counter<10)
 		sprintf(string,"images/image0%d.jpg",counter);
 	else
 		sprintf(string,"images/image%d.jpg",counter);
 		
 	counter++;	
 	cvSaveImage(string,frame,0);
+    cvReleaseImage(&frame);//*/
+    gui->saveSnapshot=1;
+    return;
 }
  
 static void combo_callback(GtkWidget *widget,GdkEventKey *kevent, gpointer data){
@@ -288,23 +301,13 @@ static void on_destroy(GtkWidget *widget, gpointer data)
 #endif
 
 
-IplImage *gtkToOcv(uint8_t* data, int useFrontal){
+C_RESULT gtkToOcv(uint8_t* data, IplImage * dst){
   //IplImage *currframe;
-        assert(data!=NULL);
-        IplImage *dst;
-        if (useFrontal==1){
-          //currframe = cvCreateImage(cvSize(320,240), IPL_DEPTH_8U, 3);
-                dst = cvCreateImage(cvSize(320,240), IPL_DEPTH_8U, 3);
-        }
-        else {
-                //currframe = cvCreateImage(cvSize(176,144), IPL_DEPTH_8U, 3);
-                dst = cvCreateImage(cvSize(STREAM_WIDTH,STREAM_HEIGHT), IPL_DEPTH_8U, 3);
-        }
- 
-        dst->imageData = data;
-        cvCvtColor(dst, dst, CV_BGR2RGB);
-        //cvReleaseImage(&currframe);
-        return dst;
+        if(data==NULL) return C_FAIL; 
+        if(dst==NULL) return C_FAIL;
+        memcpy(dst->imageData,data,STREAM_WIDTH*STREAM_HEIGHT);
+        //cvCvtColor(dst, dst, CV_BGR2RGB);
+        return C_OK;
 }
 
 
@@ -368,6 +371,8 @@ void init_gui(int argc, char **argv)
   gui->currentClassValue=9;
   gui->ihm_is_initialized=0;
   gui->triggerOutput=0;
+  gui->saveSnapshot=0;
+  gui->counter=0;
   
   g_signal_connect(G_OBJECT(gui->window),"destroy",G_CALLBACK(on_destroy),NULL);
   g_signal_connect (gui->sw, "clicked",G_CALLBACK (switch_callback), NULL);
@@ -410,5 +415,7 @@ void init_gui(int argc, char **argv)
   gtk_box_pack_start(GTK_BOX(gui->box), gui->blue, TRUE, TRUE, 10);
   gtk_box_pack_start(GTK_BOX(gui->box), gui->combo, TRUE, TRUE, 10);
  
+  
+  gui->configured=1;
   gtk_widget_show_all(gui->window);
 }

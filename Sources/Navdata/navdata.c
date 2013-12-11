@@ -26,7 +26,7 @@ inline C_RESULT demo_navdata_client_process( const navdata_unpacked_t* const nav
 	if (theCounter>=upTo){
   gdk_threads_enter();
   gui_t *gui = get_gui();
-	if (gui!=NULL){
+	if (gui!=NULL&&gui->configured==1){
 		gui->batteryLevel=nd->vbat_flying_percentage;
 		if(nd->ctrl_state!=0)
 			sprintf(theString,"Status: OK! \nBattery:\t%imV\nAltitude\t%i\n",gui->batteryLevel,nd->altitude);

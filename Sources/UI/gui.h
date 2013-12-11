@@ -5,6 +5,7 @@
 #include "ImgProc/ImgProc.h"
 #include "cv.h"
 #include <gtk/gtk.h>
+#include <VP_Os/vp_os_types.h>
 
 #define step 0.2
 
@@ -64,6 +65,10 @@ typedef struct gui
   int currentClassValue;
   int segColor;//zero-based red,green,blue respectively
   
+  char saveSnapshot;
+  int counter;
+  char configured;
+  
 } gui_t;
  
 gui_t *get_gui();
@@ -74,6 +79,5 @@ void init_gui(int argc, char **argv);
 
 void writeOnTextBox(char*);
 
-IplImage *gtkToOcv(uint8_t* data, int useFrontal);
- 
+C_RESULT gtkToOcv(uint8_t* data, IplImage * dst); 
 #endif

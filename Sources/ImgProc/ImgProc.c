@@ -368,7 +368,7 @@ int ttMain(IplImage * theFrame){
  	
     cvZero(outputFrame);
     cvZero(tempFrame);
-    cvCvtColor(theFrame,theFrame,CV_RGB2BGR);
+    //cvCvtColor(theFrame,theFrame,CV_RGB2BGR);
     cvCopy(theFrame,outputFrame,NULL);
     //printf("\nTTcopy OK\n\n");
     //cvCvtColor(outputClassSpaceFrame,outputClassSpaceFrame,CV_RGB2BGR);

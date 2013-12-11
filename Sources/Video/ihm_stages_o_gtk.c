@@ -88,10 +88,11 @@ C_RESULT output_gtk_stage_open(vp_stages_gtk_config_t *cfg)//, vp_api_io_data_t 
 {
     int ttInitImgProc(void);
     theRoi=cvRect(0,0,176,144);
+    
     //cvNamedWindow("image",CV_WINDOW_AUTOSIZE);
-	//theFrame=cvCreateImage(cvSize(176,144),IPL_DEPTH_8U,3);
+	theFrame=cvCreateImage(cvSize(STREAM_WIDTH,STREAM_HEIGHT),IPL_DEPTH_8U,3);
 
-	//theFrameBackup=cvCreateImage(cvSize(176,144),IPL_DEPTH_8U,3);
+	theFrameBackup=cvCreateImage(cvSize(STREAM_WIDTH,STREAM_HEIGHT),IPL_DEPTH_8U,3);
 
     return (SUCCESS);
 }
@@ -127,15 +128,32 @@ C_RESULT output_gtk_stage_transform(vp_stages_gtk_config_t *cfg, vp_api_io_data_
     pixbuf_rowstride = dec_config->rowstride;
     pixbuf_data = (uint8_t*) in->buffers[in->indexBuffer];
     
- 	theFrame=gtkToOcv(pixbuf_data,0);
+    
+ 	if(gtkToOcv(pixbuf_data,theFrame)!=C_OK){
+        return C_FAIL;
+    }
     cvSetImageROI(theFrame,theRoi);
-    cvCvtColor(theFrame,theFrame,CV_RGB2BGR);
-    //cvShowImage("image",theFrame);
- 	theFrameBackup=gtkToOcv(pixbuf_data,0);
+    //cvCvtColor(theFrame,theFrame,CV_RGB2BGR);
     if(ttMain(theFrame)!=C_OK){
         cvResetImageROI(theFrame);
-        cvCopy(theFrameBackup,theFrame,NULL);
-    //printf("\nTTihm OK\n\n");
+        cvZero(theFrame);
+        if(gtkToOcv(pixbuf_data,theFrame)!=C_OK){
+            return C_FAIL;
+        }
+        //cvCvtColor(theFrame,theFrame,CV_RGB2BGR);
+ 	//printf("\nTTihm OK\n\n");
+    }//*/
+    if(gui->saveSnapshot==1){
+        char string[30];
+        
+        if(gui->counter<10)
+            sprintf(string,"images/image0%d.jpg",gui->counter);
+        else
+            sprintf(string,"images/image%d.jpg",gui->counter);
+		
+        gui->counter++;	
+        gui->saveSnapshot=0;
+    	cvSaveImage(string,theFrame,0);
     }
     //else cvCvtColor(theFrame,theFrame,CV_RGB2BGR);
     //*/
@@ -191,7 +209,7 @@ C_RESULT output_gtk_stage_transform(vp_stages_gtk_config_t *cfg, vp_api_io_data_
         }
     }
     gdk_threads_leave();
-
+    //cvReleaseImage(&theFrame);
 
     return (SUCCESS);
 }
