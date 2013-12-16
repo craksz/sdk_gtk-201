@@ -210,7 +210,7 @@ C_RESULT update_fpad(void){
 	if(heightTestMode==0){
 	  if(manualControl.phi!=0||manualControl.theta!=0||manualControl.gaz!=0||manualControl.yaw!=0){
 			ardrone_at_set_progress_cmd( 1,manualControl.phi,manualControl.theta,manualControl.gaz,manualControl.yaw);
-			ardrone_at_set_led_animation(FIRE,10,1);
+			//ardrone_at_set_led_animation(FIRE,10,1);
 		}
 		else{
 			bringItOn();
