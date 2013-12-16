@@ -88,9 +88,13 @@ typedef struct{
 IplImage *getImage();
 Manual *getManual();
 void clearManual();
-float getManualVariable(int index);
+float getManualVariable(ManualVars index);
+void setManualVariable(ManualVars index, float value);
 
 void vControlUpdate(vControlVars theVar,double vin);
+void vControlUpdateRef(vControlVars theVar,double ref);
+double vControlGetRef(vControlVars theVar);
+
 double getVControlVout(int index);
 
 extern input_device_t fpad;

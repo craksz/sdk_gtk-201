@@ -17,6 +17,8 @@
 #define STREAM_HEIGHT 512
 #endif
 
+#define USE_IMAGE_MANUAL_CONTROL                1
+
 
 typedef enum{
     RED_COLOR=0,
@@ -73,6 +75,11 @@ typedef struct gui
   char saveSnapshot;
   int counter;
   char configured;
+  
+#if USE_IMAGE_MANUAL_CONTROL
+  IplImage * ManualControlImage;
+  
+#endif // USE_IMAGE_MANUAL_CONTROL
   
 } gui_t;
  

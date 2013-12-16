@@ -102,7 +102,7 @@ void clearManual(){
 }
 
 
-float getManualVariable(int index){
+float getManualVariable(ManualVars index){
     switch(index){
         case MANUAL_PHI:
             return manualControl.phi;
@@ -117,10 +117,27 @@ float getManualVariable(int index){
     }
 }
 
-        vControl Z;
-	vControl X;
-	vControl Y;
-	vControl Yaw;
+
+void setManualVariable(ManualVars index, float value){
+    
+    switch(index){
+        case MANUAL_PHI:
+            manualControl.phi=value;
+        case MANUAL_THETA:
+            manualControl.theta=value;
+        case MANUAL_GAZ:
+            manualControl.gaz=value;
+        case MANUAL_YAW:
+            manualControl.yaw=value;
+        default:
+            return;
+    }
+}
+
+vControl Z;
+vControl X;
+vControl Y;
+vControl Yaw;
 
 vControl* getVControl(int index){
 	switch (index){
@@ -156,6 +173,15 @@ double getVControlVout(int index){
 void vControlUpdate(vControlVars theVar,double vin){
     vControl * buffControl=getVControl(theVar);
     buffControl->vin=vin;
+}
+void vControlUpdateRef(vControlVars theVar,double ref){
+    vControl * buffControl=getVControl(theVar);
+    buffControl->ref=ref;
+}
+
+double vControlGetRef(vControlVars theVar){
+    vControl * buffControl=getVControl(theVar);
+    return buffControl->ref;
 }
 
 	

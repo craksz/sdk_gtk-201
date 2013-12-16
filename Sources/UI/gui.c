@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include "gui.h"
 #include "string.h"
+#include "cv.h"
+#include "highgui.h"
 
 #include <ardrone_tool/UI/ardrone_input.h>
 #include "ImgProc/ImgProc.h"
@@ -11,6 +13,17 @@
 gui_t *gui = NULL;
 GtkWidget *popup_window; 
 GtkWidget *fpopup_window; 
+
+#if USE_IMAGE_MANUAL_CONTROL
+IplImage * imageUp;
+IplImage * imageDown;
+IplImage * imageLeft;
+IplImage * imageRight;
+IplImage * imageCenter;
+
+#endif // USE_IMAGE_MANUAL_CONTROL
+
+
 
 gui_t *get_gui()
 {
@@ -43,69 +56,93 @@ void saveWorkspace(){
 */
 static void keyPressed(GtkWidget *widget,GdkEventKey *kevent, gpointer data){
 	static int value = 1;
-	Manual *ctrlBuff;
-	vControl *buffControl;
-	ctrlBuff=getManual();
-	if(kevent->type == GDK_KEY_PRESS){  
-   	//printf("%c\n",kevent->keyval);
     
-	  switch(kevent->keyval){
-			case '2': 
-				if(kevent->type == GDK_KEY_PRESS)  {
-	   	 		ardrone_tool_set_ui_pad_start(value);
-	   	 		value = (value + 1) % 2;
-//	   	 		printf("++%d++\n",value);
-	    	}
-  			break;
-  		case 'w':
-  			ctrlBuff->theta=-step;
-				break;
+	if(kevent->type == GDK_KEY_PRESS){  
+    
+        switch(kevent->keyval){
+            case '2': 
+                if(kevent->type == GDK_KEY_PRESS)  {
+                ardrone_tool_set_ui_pad_start(value);
+                value = (value + 1) % 2;
+    //	   	 		printf("++%d++\n",value);
+                }
+                return;
+#if USE_IMAGE_MANUAL_CONTROL
+
+            case 'w':
+                gui->ManualControlImage=imageUp;
+                return;
  		 	case 's':
-  			ctrlBuff->theta=step;
-				break;
+                gui->ManualControlImage=imageDown;
+				return;
  		 	case 'a':
-  			ctrlBuff->phi=-step;
-				break;
+                gui->ManualControlImage=imageLeft;
+				return;
  		 	case 'd':
-  			ctrlBuff->phi=step;
-				break;
+                gui->ManualControlImage=imageRight;
+				return;
+#else
+            case 'w':
+                setManualVariable(MANUAL_THETA,-step);
+    //  			ctrlBuff->theta=-step;
+                return;
+ 		 	case 's':
+                setManualVariable(MANUAL_THETA,step);
+//  			ctrlBuff->theta=step;
+				return;
+ 		 	case 'a':
+                setManualVariable(MANUAL_PHI,-step);
+//  			ctrlBuff->phi=-step;
+				return;
+ 		 	case 'd':
+                setManualVariable(MANUAL_PHI,step);
+//  			ctrlBuff->phi=step;
+				return;
+#endif // USE_IMAGE_MANUAL_CONTROL
  		 	case 'i':
-  			ctrlBuff->gaz=step;
-				break;
+                setManualVariable(MANUAL_GAZ,step);
+//  			ctrlBuff->gaz=step;
+				return;
  		 	case 'k':
-  			ctrlBuff->gaz=-step;
-				break;
+                setManualVariable(MANUAL_GAZ,-step);
+//  			ctrlBuff->gaz=-step;
+				return;
  		 	case 'j':
-  			ctrlBuff->yaw=step;
-				break;
+                setManualVariable(MANUAL_YAW,step);
+//  			ctrlBuff->yaw=step;
+				return;
  		 	case 'l':
-  			ctrlBuff->yaw=-step;
-				break;
+                setManualVariable(MANUAL_YAW,-step);
+//  			ctrlBuff->yaw=-step;
+				return;
  		 	case '+':
- 		 		buffControl=getVControl(varZ);
- 		 		buffControl->ref+=100;
+                vControlUpdateRef(varZ,vControlGetRef(varZ)+100);
  //		 		printf("newZvalue=%2.2f\n",buffControl->Ref);
-				break;
+				return;
  		 	case '-':
- 		 		buffControl=getVControl(varZ);
- 		 		buffControl->ref-=100;
+                vControlUpdateRef(varZ,vControlGetRef(varZ)-100);
  //		 		printf("newZvalue=%2.2f\n",buffControl->Ref);
-				break;
+				return;
 			default:
 				//printf("not found\n");
 			//ardrone_at_set_led_animation(KEY_OK,1,1);
 				break;
 		}
+        
 	}
 		 
-		if(kevent->keyval=='1'){
-			if(kevent->type == GDK_KEY_PRESS) 
-  		ardrone_tool_set_ui_pad_select(1);
-  	else ardrone_tool_set_ui_pad_select(0);
-  	
-	}
-	if(kevent->type==GDK_KEY_RELEASE)
-  	clearManual();
+	if(kevent->keyval=='1'){
+    	if(kevent->type == GDK_KEY_PRESS) 
+        	ardrone_tool_set_ui_pad_select(1);
+        else ardrone_tool_set_ui_pad_select(0);
+        return;
+  	}
+	if(kevent->type==GDK_KEY_RELEASE){
+#if USE_IMAGE_MANUAL_CONTROL
+        gui->ManualControlImage=imageCenter;
+#endif //USE_IMAGE_MANUAL_CONTROL
+        clearManual();
+    }
 	
 }
 ////////////////// 
@@ -164,32 +201,32 @@ static void fuzzyImageDisplay (GtkButton* button, GtkWidget* pWindow)
 {
 	if(gui->fuzzyControlGraphWidgetInit!=1){
 
-    fpopup_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_title (GTK_WINDOW (fpopup_window), "Pop Up window");
-    gtk_container_set_border_width (GTK_CONTAINER (fpopup_window), 5);
-    gtk_window_set_resizable (GTK_WINDOW (fpopup_window), FALSE);
-    gtk_window_set_decorated (GTK_WINDOW (fpopup_window), FALSE);
-    gtk_window_set_skip_taskbar_hint (GTK_WINDOW (fpopup_window), TRUE);
-    gtk_window_set_skip_pager_hint (GTK_WINDOW (fpopup_window), TRUE);
-    gtk_widget_set_size_request (fpopup_window, 600, 600);
-    gtk_window_set_transient_for (GTK_WINDOW (fpopup_window), GTK_WINDOW (pWindow));
-    gtk_window_set_position (GTK_WINDOW (fpopup_window), GTK_WIN_POS_NONE);
+        fpopup_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+        gtk_window_set_title (GTK_WINDOW (fpopup_window), "Pop Up window");
+        gtk_container_set_border_width (GTK_CONTAINER (fpopup_window), 5);
+        gtk_window_set_resizable (GTK_WINDOW (fpopup_window), FALSE);
+        gtk_window_set_decorated (GTK_WINDOW (fpopup_window), FALSE);
+        gtk_window_set_skip_taskbar_hint (GTK_WINDOW (fpopup_window), TRUE);
+        gtk_window_set_skip_pager_hint (GTK_WINDOW (fpopup_window), TRUE);
+        gtk_widget_set_size_request (fpopup_window, 600, 600);
+        gtk_window_set_transient_for (GTK_WINDOW (fpopup_window), GTK_WINDOW (pWindow));
+        gtk_window_set_position (GTK_WINDOW (fpopup_window), GTK_WIN_POS_NONE);
 
-    gtk_widget_set_events (fpopup_window, GDK_FOCUS_CHANGE_MASK);
-    g_signal_connect (G_OBJECT (fpopup_window),
-                      "focus-out-event",
-                      G_CALLBACK (on_popup_focus_out),
-                      (gpointer)FUZZY_CONTROL_GRAPH_WIDGET);
+        gtk_widget_set_events (fpopup_window, GDK_FOCUS_CHANGE_MASK);
+        g_signal_connect (G_OBJECT (fpopup_window),
+                          "focus-out-event",
+                          G_CALLBACK (on_popup_focus_out),
+                          (gpointer)FUZZY_CONTROL_GRAPH_WIDGET);
 
-    GdkColor color;
-    gdk_color_parse ("#ffffff", &color);
-    gtk_widget_modify_bg (GTK_WIDGET (fpopup_window), GTK_STATE_NORMAL, &color);
+        GdkColor color;
+        gdk_color_parse ("#ffffff", &color);
+        gtk_widget_modify_bg (GTK_WIDGET (fpopup_window), GTK_STATE_NORMAL, &color);
 
-    gtk_container_add(GTK_CONTAINER(fpopup_window),gui->fuzzyImage);
-    gtk_widget_show_all (fpopup_window);
-    gtk_widget_grab_focus (fpopup_window);
-    
-    gui->fuzzyControlGraphWidgetInit=1; 
+        gtk_container_add(GTK_CONTAINER(fpopup_window),gui->fuzzyImage);
+        gtk_widget_show_all (fpopup_window);
+        gtk_widget_grab_focus (fpopup_window);
+
+        gui->fuzzyControlGraphWidgetInit=1; 
     }
     else{
 		gtk_widget_show(fpopup_window);
@@ -350,6 +387,16 @@ void init_gui(int argc, char **argv)
   gui->saveSnapshot=0;
   gui->counter=0;
   
+#if USE_IMAGE_MANUAL_CONTROL
+  imageUp=cvLoadImage("imageUp.bmp",-1);
+  imageDown=cvLoadImage("imageDown.bmp",-1);
+  imageLeft=cvLoadImage("imageLeft.bmp",-1);
+  imageRight=cvLoadImage("imageRight.bmp",-1);
+  imageCenter=cvLoadImage("imageCenter.bmp",-1);
+  
+  assert(imageUp!=NULL&&imageDown!=NULL&&imageLeft!=NULL&&imageRight!=NULL&&);
+  
+#endif
   gui-> classImageWidgetInit=0;
   gui-> fuzzyControlGraphWidgetInit=0;
   gui-> classImageWidgetReq=0;
