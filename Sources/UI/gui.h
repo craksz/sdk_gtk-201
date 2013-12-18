@@ -91,5 +91,7 @@ void init_gui(int argc, char **argv);
 
 void writeOnTextBox(char*);
 
+void PrintOnGui(const char * theString);
+
 C_RESULT gtkToOcv(uint8_t* data, IplImage * dst); 
 #endif

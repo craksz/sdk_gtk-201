@@ -17,7 +17,7 @@
 
 #define NUM_MAX_SCREEN_POINTS (DEFAULT_NB_TRACKERS_WIDTH * DEFAULT_NB_TRACKERS_HEIGHT)
 
-
+CvRect * getRoi();
 
 typedef struct _vp_stages_draw_trackers_config_t
 {

@@ -72,6 +72,11 @@ int videoPauseStatus = 0;
 
 float DEBUG_fps = 0.0;
 
+CvRect * getRoi(){
+    return &theRoi;
+}
+
+
 const vp_api_stage_funcs_t vp_stages_output_gtk_funcs = {
     NULL,
     (vp_api_stage_open_t) output_gtk_stage_open,

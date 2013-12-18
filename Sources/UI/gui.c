@@ -14,12 +14,14 @@ gui_t *gui = NULL;
 GtkWidget *popup_window; 
 GtkWidget *fpopup_window; 
 
+
+
 #if USE_IMAGE_MANUAL_CONTROL
-IplImage * imageUp;
-IplImage * imageDown;
-IplImage * imageLeft;
-IplImage * imageRight;
-IplImage * imageCenter;
+extern IplImage * imageUp;
+extern IplImage * imageDown;
+extern IplImage * imageLeft;
+extern IplImage * imageRight;
+extern IplImage * imageCenter;
 
 #endif // USE_IMAGE_MANUAL_CONTROL
 
@@ -57,7 +59,7 @@ void saveWorkspace(){
 static void keyPressed(GtkWidget *widget,GdkEventKey *kevent, gpointer data){
 	static int value = 1;
     
-	if(kevent->type == GDK_KEY_PRESS){  
+    if(kevent->type == GDK_KEY_PRESS){  
     
         switch(kevent->keyval){
             case '2': 
@@ -324,7 +326,11 @@ C_RESULT gtkToOcv(uint8_t* data, IplImage * dst){
 }
 
 
+void PrintOnGui(const char * theString){
+   gtk_label_set_text((GtkLabel*)gui->textBox,theString);
 
+    
+}
 
 
 
@@ -387,16 +393,6 @@ void init_gui(int argc, char **argv)
   gui->saveSnapshot=0;
   gui->counter=0;
   
-#if USE_IMAGE_MANUAL_CONTROL
-  imageUp=cvLoadImage("imageUp.bmp",-1);
-  imageDown=cvLoadImage("imageDown.bmp",-1);
-  imageLeft=cvLoadImage("imageLeft.bmp",-1);
-  imageRight=cvLoadImage("imageRight.bmp",-1);
-  imageCenter=cvLoadImage("imageCenter.bmp",-1);
-  
-  assert(imageUp!=NULL&&imageDown!=NULL&&imageLeft!=NULL&&imageRight!=NULL&&);
-  
-#endif
   gui-> classImageWidgetInit=0;
   gui-> fuzzyControlGraphWidgetInit=0;
   gui-> classImageWidgetReq=0;
