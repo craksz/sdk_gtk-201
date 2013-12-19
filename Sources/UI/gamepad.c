@@ -17,6 +17,7 @@
 
 #include <ardrone_api.h>
 #include <VP_Os/vp_os_print.h>
+#include <VP_Os/vp_os_types.h>
 #include "gamepad.h"
 #include "UI/gui.h"
 
@@ -154,7 +155,7 @@ vControl* getVControl(int index){
 	}
 }
 
-double getVControlVout(int index){
+double vControlGetVout(int index){
     switch(index){
         case varX:
 			return X.vout;
@@ -184,6 +185,9 @@ double vControlGetRef(vControlVars theVar){
     return buffControl->ref;
 }
 
+void fGraphUpdateRef(double ref){
+    zg.ref=ref;
+}
 	
 C_RESULT open_fpad(void){
 	
@@ -204,11 +208,11 @@ C_RESULT open_fpad(void){
 	inControl( &X );
 	inControl( &Y );
 	inControl( &Yaw );
-	Z.ref=heightTop;
-	X.ref = 0.0;
-	Y.ref = 0.0;
-	Yaw.ref = 0.0;
-	zg.ref=Z.ref;
+    vControlUpdateRef(varZ,heightTop);
+    vControlUpdateRef(varX,0.0);
+    vControlUpdateRef(varY,0.0);
+    vControlUpdateRef(varYaw,0.0);
+    fGraphUpdateRef(Z.ref);
 	
 	/*Z.name="Z";
 	X.name="X";
@@ -219,52 +223,44 @@ C_RESULT open_fpad(void){
 	return C_OK;
 }
 
+void updateTestModeRefs(){
+    static int timer=0;
+    static int theFlag=0;
+    if(timer<heightTestModeTop){
+        if(theFlag%2==0){
+            vControlUpdateRef(varZ,heightTestModeH1);
+        }
+        else{
+            vControlUpdateRef(varZ,heightTestModeH2);
+        }
+        fGraphUpdateRef(Z.ref);
+        timer++;
+        //printf("%d!\n",timer);
+    }
+    else {
+        printf("CHANGE to %0.2f !!!\n\n",Z.ref);
+        theFlag++;
+        timer=0;
+    }
+}
+
+bool_t manualControlCheckAndRun(){
+    if(manualControl.phi!=0||manualControl.theta!=0||manualControl.gaz!=0||manualControl.yaw!=0){
+        ardrone_at_set_progress_cmd( 1,manualControl.phi,manualControl.theta,manualControl.gaz,manualControl.yaw);
+        //ardrone_at_set_led_animation(FIRE,10,1);
+        return TRUE;
+	}
+    return FALSE;
+}
+
 C_RESULT update_fpad(void){
 
-	/*FuzzyControl( &X , 0.0 , h1 );
-	FuzzyControl( &Y , 0.0 , h2 );
-	FuzzyControl( &Yaw , 0.0 , h3 );
-	FuzzyControl( &Z , 0.0 , h4 );//*/
-	//printf("%d\n",fcx);
-	//dispControl(&Z);
-	/*ardrone_at_set_progress_cmd( 1,
-                                    //roll/(float)(stick1LR-center_x1)/32767.0f,
-                                    //pitch/(float)(stick1UD-center_y1)/32767.0f,
-                                    //gaz/-(float)(stick2UD-center_x2)/32767.0f,
-                                    //yaw/(float)(stick2LR-center_y2)/32767.0f );*/
-                                    //printf("++%0.2f++\n",Z.vout);
-	if(heightTestMode==0){
-	  if(manualControl.phi!=0||manualControl.theta!=0||manualControl.gaz!=0||manualControl.yaw!=0){
-			ardrone_at_set_progress_cmd( 1,manualControl.phi,manualControl.theta,manualControl.gaz,manualControl.yaw);
-			//ardrone_at_set_led_animation(FIRE,10,1);
-		}
-		else{
-			bringItOn();
-		}
+    if(heightTestMode==1){
+        updateTestModeRefs();
 	}
-	else{
-		
-		static int timer=0;
-		static int theFlag=0;
-		if(timer<heightTestModeTop){
-			if(theFlag%2==0){
-				Z.ref=heightTestModeH1;
-				zg.ref=Z.ref;
-			}
-			else{
-				Z.ref=heightTestModeH2;
-				zg.ref=Z.ref;
-			}
-			timer++;
-			//printf("%d!\n",timer);
-		}
-		else {
-			printf("CHANGE to %0.2f !!!\n\n",Z.ref);
-			theFlag++;
-			timer=0;
-		}
-		bringItOn();
-	}
+    else if(manualControlCheckAndRun()==TRUE) 
+        return C_OK;
+	vControlTask();
 	return C_OK;
 }
 
@@ -272,7 +268,7 @@ C_RESULT close_fpad(void){
 	return C_OK;
 }
 
-void bringItOn(){
+void vControlTask(){
 
   		//static GdkPixbuf *pixbuf = NULL;
   		
@@ -299,16 +295,16 @@ void bringItOn(){
 			}
 			else{
 				//ardrone_at_reset_com_watchdog();//*/
-				if(Z.vout<0){
+				if(vControlGetVout(varZ)<0){
 					Z.vout*=0.125;
 				}
-			if(X.vout!=0||Y.vout!=0){
-				ardrone_at_set_progress_cmd( 1,X.vout,-Y.vout,Z.vout,0);
+			if(vControlGetVout(varY)!=0||vControlGetVout(varX)!=0){
+				ardrone_at_set_progress_cmd( 1,vControlGetVout(varX),-vControlGetVout(varY),vControlGetVout(varZ),0);
 				//counter001++;
 			}
 			else{
 				//counter001=0;
-				ardrone_at_set_progress_cmd( 0,0,0,Z.vout,0);
+				ardrone_at_set_progress_cmd( 0,0,0,vControlGetVout(varZ),0);
 				//sprintf(theString,"X:\t%0.3f\nY:\t%0.3f\nZ:\t%0.3f\n",-X.vout,Y.vout,Z.vout);
 				//gtk_label_set_text((GtkLabel*)gui->textBox,theString);
 				//printf("%s\n",theString);

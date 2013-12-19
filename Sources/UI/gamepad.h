@@ -84,25 +84,6 @@ typedef struct{
 	float gaz;
 	float yaw;
 }Manual;
-
-IplImage *getImage();
-Manual *getManual();
-void clearManual();
-float getManualVariable(ManualVars index);
-void setManualVariable(ManualVars index, float value);
-
-void vControlUpdate(vControlVars theVar,double vin);
-void vControlUpdateRef(vControlVars theVar,double ref);
-double vControlGetRef(vControlVars theVar);
-
-double getVControlVout(int index);
-
-extern input_device_t fpad;
-
-C_RESULT open_fpad(void);
-C_RESULT update_fpad(void);
-C_RESULT close_fpad(void);
-
 /*	Estructura para el control difuso	*/
 typedef struct {
 
@@ -120,6 +101,26 @@ typedef struct {
 	char *name;
 
 }	vControl;
+
+IplImage *getImage();
+Manual *getManual();
+void clearManual();
+float getManualVariable(ManualVars index);
+void setManualVariable(ManualVars index, float value);
+
+void vControlUpdate(vControlVars theVar,double vin);
+void vControlUpdateRef(vControlVars theVar,double ref);
+double vControlGetRef(vControlVars theVar);
+
+double vControlGetVout(int index);
+
+extern input_device_t fpad;
+
+C_RESULT open_fpad(void);
+C_RESULT update_fpad(void);
+C_RESULT close_fpad(void);
+
+
 
 vControl* getVControl(int);
 
@@ -153,7 +154,7 @@ void maximum( double *var1, double *var2, double *var3);
 //	Defusificación: Linear Defuzzyfier
 void Defuzz( double *u , double *h , double *ku , double *vout );
 
-void bringItOn(void);
+void vControlTask(void);
 
 
 

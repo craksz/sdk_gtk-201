@@ -351,8 +351,8 @@ void ttHueMomentsSetup(CvHuMoments * theHu,float * theH1, float * theH2){
 void ttDrawDirections(IplImage * outputFrame,int use_contours){
     int horMargin=10;
     int vertMargin=10;
-    double xdir=getVControlVout(varX);
-    double ydir=getVControlVout(varY);
+    double xdir=vControlGetVout(varX);
+    double ydir=vControlGetVout(varY);
     float phi=getManualVariable(MANUAL_PHI);
     float theta=getManualVariable(MANUAL_THETA);
     
