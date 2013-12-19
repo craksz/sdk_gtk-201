@@ -16,12 +16,13 @@ GtkWidget *fpopup_window;
 
 
 
+
 #if USE_IMAGE_MANUAL_CONTROL
-extern IplImage * imageUp;
-extern IplImage * imageDown;
-extern IplImage * imageLeft;
-extern IplImage * imageRight;
-extern IplImage * imageCenter;
+IplImage * imageUp;
+IplImage * imageDown;
+IplImage * imageLeft;
+IplImage * imageRight;
+IplImage * imageCenter;
 
 #endif // USE_IMAGE_MANUAL_CONTROL
 
@@ -397,6 +398,28 @@ void init_gui(int argc, char **argv)
   gui-> fuzzyControlGraphWidgetInit=0;
   gui-> classImageWidgetReq=0;
   gui-> fuzzyControlGraphWidgetReq=0;
+  
+  
+	 #if USE_IMAGE_MANUAL_CONTROL
+        imageUp=cvLoadImage("imageUp.bmp",1);
+        imageDown=cvLoadImage("imageDown.bmp",1);
+        imageLeft=cvLoadImage("imageLeft.bmp",1);
+        imageRight=cvLoadImage("imageRight.bmp",1);
+        imageCenter=cvLoadImage("imageCenter.bmp",1);
+
+        if(imageUp==NULL||imageDown==NULL||imageLeft==NULL||imageRight==NULL||imageCenter==NULL){
+            //PrintOnGui("image Loading went wrong!");
+            printf("\n%d %d %d %d %d\n\n",(int)imageUp,(int)imageDown,(int)imageLeft,(int)imageRight,(int)imageCenter);
+            signal_exit();
+            exit(-1);
+        };
+        cvCvtColor(imageUp,imageUp,CV_RGB2BGR);
+        cvCvtColor(imageDown,imageDown,CV_RGB2BGR);
+        cvCvtColor(imageLeft,imageLeft,CV_RGB2BGR);
+        cvCvtColor(imageRight,imageRight,CV_RGB2BGR);
+        cvCvtColor(imageCenter,imageCenter,CV_RGB2BGR);
+        gui->ManualControlImage=imageCenter;
+    #endif
   
   
   g_signal_connect(G_OBJECT(gui->window),"destroy",G_CALLBACK(on_destroy),NULL);

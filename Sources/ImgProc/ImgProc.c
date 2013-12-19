@@ -27,16 +27,6 @@ IplImage * tempFrame;
 
 
 
-#if USE_IMAGE_MANUAL_CONTROL
-IplImage * imageUp;
-IplImage * imageDown;
-IplImage * imageLeft;
-IplImage * imageRight;
-IplImage * imageCenter;
-
-#endif // USE_IMAGE_MANUAL_CONTROL
-
-
 int ttInitImgProc(void){
 
 	ttInitSegValues();
@@ -49,7 +39,8 @@ int ttInitImgProc(void){
 				
 	theWriter=cvCreateVideoWriter(filename,CV_FOURCC('M','J','P','G'),25,cvSize(justWidth,justHeight),1);
 #endif
-	tempFrame=cvCreateImage(cvSize(VIDEO_VERT_WIDTH,VIDEO_VERT_HEIGHT),IPL_DEPTH_8U,1);
+  
+    tempFrame=cvCreateImage(cvSize(VIDEO_VERT_WIDTH,VIDEO_VERT_HEIGHT),IPL_DEPTH_8U,1);
     outputFrame=cvCreateImage(cvSize(VIDEO_VERT_WIDTH,VIDEO_VERT_HEIGHT),IPL_DEPTH_8U,3);
     cvInitFont(&theFont,CV_FONT_HERSHEY_PLAIN,1.0,1.0,0,1,8);
 	classSpaceFrame=cvLoadImage("spaceClasses.bmp",0);
@@ -58,24 +49,7 @@ int ttInitImgProc(void){
     printf("\n%d\n\n",(int)classSpaceClear);
     
     
-    #if USE_IMAGE_MANUAL_CONTROL
-        gui_t * gui=get_gui();
-        imageUp=cvLoadImage("imageUp.bmp",1);
-        imageDown=cvLoadImage("imageDown.bmp",1);
-        imageLeft=cvLoadImage("/home/alexis/sdk_gtk.dropbox/Build/imageLeft.bmp",1);
-        imageRight=cvLoadImage("/home/alexis/sdk_gtk.dropbox/Build/imageRight.bmp",1);
-        imageCenter=cvLoadImage("/home/alexis/sdk_gtk.dropbox/Build/imageCenter.bmp",1);
-
-        if(imageUp==NULL||imageDown==NULL||imageLeft==NULL||imageRight==NULL||imageCenter==NULL){
-            //PrintOnGui("image Loading went wrong!");
-            printf("\n%d %d %d %d %d\n\n",(int)imageUp,(int)imageDown,(int)imageLeft,(int)imageRight,(int)imageCenter);
-            //signal_exit();
-            //exit(-1);
-        };
-
-        gui->ManualControlImage=imageCenter;
-    #endif
-  
+   
     printf("\nTTINIT OK\n\n");
     //assert(classSpaceFrame!=NULL);
     //assert(outputClassSpaceFrame!=NULL);
@@ -408,17 +382,20 @@ void ttDrawDirections(IplImage * outputFrame,int use_contours){
 int ttMain(IplImage * theFrame){
       //OPENCV
     gui_t *gui = get_gui();
+    /*
 #if USE_IMAGE_MANUAL_CONTROL
     //cvResetImageROI(theFrame);
     if(gui->ManualControlImage!=NULL){
-        printf("\n%d %d %d %d\n\n",gui->ManualControlImage->width,gui->ManualControlImage->depth,theFrame->width,theFrame->depth);
+        //printf("\n%d %d %d %d\n\n",gui->ManualControlImage->width,gui->ManualControlImage->depth,theFrame->width,theFrame->depth);
         cvCopy(gui->ManualControlImage,theFrame,NULL);
+        PrintOnGui("ok!");
     }
+    else PrintOnGui("fuck!!!");
     //printf("\nttMain1 ok!\n\n");
     //CvRect * roi=getRoi();
     //   cvSetImageROI(theFrame,*roi);
 
-#endif
+#endif//*/
  
     assert(theFrame!=NULL);
     assert(outputFrame!=NULL);
@@ -452,9 +429,10 @@ int ttMain(IplImage * theFrame){
     ttImprover(tempFrame,tempFrame);
     theContour=ttFindContours(tempFrame);
     if (theContour==NULL){
-        //PrintOnGui("no contour found!!");
+        PrintOnGui("no contour found!!");
         return IMG_PROC_ERROR_NO_CONTOURS_FOUND;
     }
+    PrintOnGui("");
 
     double area=cvContourArea(theContour,CV_WHOLE_SEQ,0);
     cvContourMoments( theContour , theMoments );

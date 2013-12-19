@@ -139,11 +139,31 @@ C_RESULT output_gtk_stage_transform(vp_stages_gtk_config_t *cfg, vp_api_io_data_
     }
     cvSetImageROI(theFrame,theRoi);
     //cvCvtColor(theFrame,theFrame,CV_RGB2BGR);
+
+#if USE_IMAGE_MANUAL_CONTROL
+    if(gui->ManualControlImage!=NULL){
+        //printf("\n%d %d %d %d\n\n",gui->ManualControlImage->width,gui->ManualControlImage->depth,theFrame->width,theFrame->depth);
+        cvCopy(gui->ManualControlImage,theFrame,NULL);
+        //cvCvtColor(theFrame,theFrame,CV_RGB2BGR);
+        //PrintOnGui("ok!");
+    }
+#endif
+
     if(ttMain(theFrame)!=C_OK){
         cvZero(theFrame);
+        
+#if USE_IMAGE_MANUAL_CONTROL
+    if(gui->ManualControlImage!=NULL){
+        //printf("\n%d %d %d %d\n\n",gui->ManualControlImage->width,gui->ManualControlImage->depth,theFrame->width,theFrame->depth);
+        cvCopy(gui->ManualControlImage,theFrame,NULL);
+        //PrintOnGui("ok!");
+    }
+#else
         if(gtkToOcv(pixbuf_data,theFrame)!=C_OK){
             return C_FAIL;
         }
+#endif
+        //cvCopy(gui->ManualControlImage,theFrame,NULL);
         //cvCvtColor(theFrame,theFrame,CV_RGB2BGR);
  	//printf("\nTTihm OK\n\n");
     }//*/
