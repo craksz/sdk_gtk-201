@@ -22,6 +22,8 @@ IplImage * imageUp;
 IplImage * imageDown;
 IplImage * imageLeft;
 IplImage * imageRight;
+IplImage * imageCw;
+IplImage * imageCcw;
 IplImage * imageCenter;
 
 #endif // USE_IMAGE_MANUAL_CONTROL
@@ -84,6 +86,12 @@ static void keyPressed(GtkWidget *widget,GdkEventKey *kevent, gpointer data){
  		 	case 'd':
                 gui->ManualControlImage=imageRight;
 				return;
+ 		 	case 'j':
+                gui->ManualControlImage=imageCcw;
+				return;
+ 		 	case 'l':
+                gui->ManualControlImage=imageCw;
+				return;
 #else
             case 'w':
                 setManualVariable(MANUAL_THETA,-step);
@@ -101,6 +109,14 @@ static void keyPressed(GtkWidget *widget,GdkEventKey *kevent, gpointer data){
                 setManualVariable(MANUAL_PHI,step);
 //  			ctrlBuff->phi=step;
 				return;
+ 		 	case 'j':
+                setManualVariable(MANUAL_YAW,step);
+//  			ctrlBuff->yaw=step;
+				return;
+ 		 	case 'l':
+                setManualVariable(MANUAL_YAW,-step);
+//  			ctrlBuff->yaw=-step;
+				return;
 #endif // USE_IMAGE_MANUAL_CONTROL
  		 	case 'i':
                 setManualVariable(MANUAL_GAZ,step);
@@ -109,14 +125,6 @@ static void keyPressed(GtkWidget *widget,GdkEventKey *kevent, gpointer data){
  		 	case 'k':
                 setManualVariable(MANUAL_GAZ,-step);
 //  			ctrlBuff->gaz=-step;
-				return;
- 		 	case 'j':
-                setManualVariable(MANUAL_YAW,step);
-//  			ctrlBuff->yaw=step;
-				return;
- 		 	case 'l':
-                setManualVariable(MANUAL_YAW,-step);
-//  			ctrlBuff->yaw=-step;
 				return;
  		 	case '+':
                 vControlUpdateRef(varZ,vControlGetRef(varZ)+100);
@@ -405,6 +413,8 @@ void init_gui(int argc, char **argv)
         imageDown=cvLoadImage("imageDown.bmp",1);
         imageLeft=cvLoadImage("imageLeft.bmp",1);
         imageRight=cvLoadImage("imageRight.bmp",1);
+        imageCw=cvLoadImage("imageCw.bmp",1);
+        imageCcw=cvLoadImage("imageCcw.bmp",1);
         imageCenter=cvLoadImage("imageCenter.bmp",1);
 
         if(imageUp==NULL||imageDown==NULL||imageLeft==NULL||imageRight==NULL||imageCenter==NULL){
@@ -418,6 +428,8 @@ void init_gui(int argc, char **argv)
         cvCvtColor(imageLeft,imageLeft,CV_RGB2BGR);
         cvCvtColor(imageRight,imageRight,CV_RGB2BGR);
         cvCvtColor(imageCenter,imageCenter,CV_RGB2BGR);
+        cvCvtColor(imageCw,imageCw,CV_RGB2BGR);
+        cvCvtColor(imageCcw,imageCcw,CV_RGB2BGR);
         gui->ManualControlImage=imageCenter;
     #endif
   

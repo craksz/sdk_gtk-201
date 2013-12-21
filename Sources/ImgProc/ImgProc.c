@@ -361,11 +361,11 @@ void ttDrawDirections(IplImage * outputFrame,int use_contours){
 		if(xdir>0)
 			cvCircle(outputFrame,cvPoint(horMargin,VIDEO_VERT_HEIGHT/2),1,CV_RGB(255,255,255),10,8,0);
 		if(xdir<0)
-			cvCircle(outputFrame,cvPoint(VIDEO_VERT_HEIGHT-horMargin,VIDEO_VERT_HEIGHT/2),1,CV_RGB(255,255,255),10,8,0);
+			cvCircle(outputFrame,cvPoint(VIDEO_VERT_WIDTH-horMargin,VIDEO_VERT_HEIGHT/2),1,CV_RGB(255,255,255),10,8,0);
 		if(ydir>0)
 			cvCircle(outputFrame,cvPoint(VIDEO_VERT_WIDTH/2,vertMargin),1,CV_RGB(255,255,255),10,8,0);
 		if(ydir<0)
-			cvCircle(outputFrame,cvPoint(VIDEO_VERT_WIDTH/2,VIDEO_VERT_WIDTH-vertMargin),1,CV_RGB(255,255,255),10,8,0);
+			cvCircle(outputFrame,cvPoint(VIDEO_VERT_WIDTH/2,VIDEO_VERT_HEIGHT-vertMargin),1,CV_RGB(255,255,255),10,8,0);
 			
 		if(phi>0)
 			cvCircle(outputFrame,cvPoint(horMargin,VIDEO_VERT_HEIGHT/2),1,CV_RGB(255,0,0),10,8,0);
