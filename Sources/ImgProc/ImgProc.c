@@ -477,8 +477,8 @@ int ttMain(IplImage * theFrame){
         pb=cvPoint(boxCentroid.x-theSide*sin(otroAngle),boxCentroid.y-theSide*cos(otroAngle));
     }
     //theSide=theBox.size.width;
-    vControlUpdate(varX,boxCentroid.x-centerPoint.x);
-    vControlUpdate(varY,boxCentroid.y-centerPoint.y);
+    vControlUpdate(varX,boxCentroid.x/1.0-centerPoint.x/1.0);
+    vControlUpdate(varY,boxCentroid.y/1.0-centerPoint.y/1.0);
 
 
     if(gui->use_contours==1){
