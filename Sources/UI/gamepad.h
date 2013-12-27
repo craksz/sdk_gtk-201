@@ -6,12 +6,12 @@
 
 
 #define switchTop 5
-#define XGAIN1 1.8 
+#define XGAIN1 1.8
 #define XGAIN2 0.5
-#define XGAIN3 0.1
+#define XGAIN3 1.0
 #define YGAIN1 1.8
 #define YGAIN2 0.5
-#define YGAIN3 0.1
+#define YGAIN3 1.0
 #define ZGAIN1 0.8
 #define ZGAIN2 3.0
 #define ZGAIN3 1.0
@@ -108,11 +108,12 @@ void clearManual();
 float getManualVariable(ManualVars index);
 void setManualVariable(ManualVars index, float value);
 
-void vControlUpdate(vControlVars theVar,double vin);
-void vControlUpdateRef(vControlVars theVar,double ref);
-double vControlGetRef(vControlVars theVar);
+void vControlUpdate(vControlVars theVar,float vin);
+void vControlUpdateRef(vControlVars theVar,float ref);
+float vControlGetRef(vControlVars theVar);
 
-double vControlGetVout(int index);
+float vControlGetVin(vControlVars theVar);
+float vControlGetVout(vControlVars index);
 
 extern input_device_t fpad;
 
@@ -122,7 +123,7 @@ C_RESULT close_fpad(void);
 
 
 
-vControl* getVControl(int);
+vControl* getVControl(vControlVars);
 
 //	Proceso de Control
 void fuzzyControl ( vControl *altitud, vControl *X, vControl *Y, vControl *Yaw );

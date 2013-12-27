@@ -41,6 +41,8 @@ typedef struct {
   char    handlers[MAX_NAME_LENGTH];
 } device_t;
 
+extern char * theString;
+
 extern int32_t MiscVar[];
 
 static C_RESULT add_device(device_t* device, const int32_t id);
@@ -140,7 +142,7 @@ vControl X;
 vControl Y;
 vControl Yaw;
 
-vControl* getVControl(int index){
+vControl* getVControl(vControlVars index){
 	switch (index){
 		case varX:
 			return &X; 
@@ -155,34 +157,37 @@ vControl* getVControl(int index){
 	}
 }
 
-double vControlGetVout(int index){
-    switch(index){
-        case varX:
-			return X.vout;
-		case varY:
-			return Y.vout;
-		case varYaw:
-			return Yaw.vout;
-		case varZ:
-			return Z.vout;
-		default:
-            return 0;
-    }
+float vControlGetVout(vControlVars index){
+    vControl * buffControl=getVControl(index);
+    if(buffControl!=NULL)
+        return (float)buffControl->vout;
+    return 0;
 }
 //static char theString[500];
 
-void vControlUpdate(vControlVars theVar,double vin){
+void vControlUpdate(vControlVars theVar,float vin){
     vControl * buffControl=getVControl(theVar);
-    buffControl->vin=vin;
+    if(buffControl!=NULL)
+        buffControl->vin=(double)vin;
 }
-void vControlUpdateRef(vControlVars theVar,double ref){
+void vControlUpdateRef(vControlVars theVar,float ref){
     vControl * buffControl=getVControl(theVar);
-    buffControl->ref=ref;
+    if(buffControl!=NULL)
+        buffControl->ref=(double)ref;
 }
 
-double vControlGetRef(vControlVars theVar){
+float vControlGetRef(vControlVars theVar){
     vControl * buffControl=getVControl(theVar);
-    return buffControl->ref;
+    if(buffControl!=NULL)
+        return (float)buffControl->ref;
+    return 0;
+}
+
+float vControlGetVin(vControlVars theVar){
+    vControl * buffControl=getVControl(theVar);
+    if(buffControl!=NULL)
+        return (float)buffControl->vin;
+    return 0;
 }
 
 void fGraphUpdateRef(double ref){
@@ -268,6 +273,35 @@ C_RESULT close_fpad(void){
 	return C_OK;
 }
 
+void printControlsToGui(){
+    gui_t * gui=get_gui();
+    
+    if(gui->configured==1&&gui!=NULL){
+    
+    	/*sprintf(theString,
+				"\n\nControl %s:\n\t\t\t[Ref]%4.1f\n\t\t\t[Inicial]%4.1f\n\t\t\t[Vout]%1.5f",
+				"x",vControlGetRef(varX),vControlGetVin(varX),vControlGetVout(varX));//*/
+        //strcpy(theString,"ecole!!!!!!");
+		gtk_label_set_text((GtkLabel*)gui->labelX,"ecole!!!!!!!!!");
+		
+    	/*sprintf(theString,
+				"\n\nControl %s:\n\t\t\t[Ref]%4.1f\n\t\t\t[Inicial]%4.1f\n\t\t\t[Vout]%1.5f",
+				"y",vControlGetRef(varY),vControlGetVin(varY),vControlGetVout(varY));
+		gtk_label_set_text((GtkLabel*)gui->labelY,theString);
+		
+    	sprintf(theString,
+				"\n\nControl %s:\n\t\t\t[Ref]%4.1f\n\t\t\t[Inicial]%4.1f\n\t\t\t[Vout]%1.5f",
+				"w",vControlGetRef(varYaw),vControlGetVin(varYaw),vControlGetVout(varYaw));
+		gtk_label_set_text((GtkLabel*)gui->labelW,theString);
+		
+    	sprintf(theString,
+				"\n\nControl %s:\n\t\t\t[Ref]%4.1f\n\t\t\t[Inicial]%4.1f\n\t\t\t[Vout]%1.5f",
+				"z",vControlGetRef(varZ),vControlGetVin(varZ),vControlGetVout(varZ));
+		gtk_label_set_text((GtkLabel*)gui->labelZ,theString);//*/
+    }
+		
+}
+
 void vControlTask(){
 
   		//static GdkPixbuf *pixbuf = NULL;
@@ -295,16 +329,19 @@ void vControlTask(){
 			}
 			else{
 				//ardrone_at_reset_com_watchdog();//*/
+            
+            
 				if(vControlGetVout(varZ)<0){
 					Z.vout*=0.125;
 				}
-			if(vControlGetVout(varY)!=0||vControlGetVout(varX)!=0){
+			//printControlsToGui();
+            if(vControlGetVout(varY)!=0||vControlGetVout(varX)!=0){
 				ardrone_at_set_progress_cmd( 1,vControlGetVout(varX),-vControlGetVout(varY),vControlGetVout(varZ),0);
 				//counter001++;
 			}
 			else{
 				//counter001=0;
-				ardrone_at_set_progress_cmd( 0,0,0,vControlGetVout(varZ),0);
+				ardrone_at_set_progress_cmd( 1,0,0,vControlGetVout(varZ),0);
 				//sprintf(theString,"X:\t%0.3f\nY:\t%0.3f\nZ:\t%0.3f\n",-X.vout,Y.vout,Z.vout);
 				//gtk_label_set_text((GtkLabel*)gui->textBox,theString);
 				//printf("%s\n",theString);
@@ -465,7 +502,7 @@ void fuzzyControl ( vControl *altitud, vControl *X, vControl *Y, vControl *Yaw )
 	char nameX[] = "Posicion X";
 	X->name 	= nameX;
 	X->error 	= X->ref - X->vin;
-	setSkale( X, 2.0, 3.5, 1.0 );
+	//setSkale( X, 2.0, 3.5, 1.0 );
 	setSkale( X, XGAIN1, XGAIN2, XGAIN3 );
 
 	Error = X->ke * X->error;
