@@ -455,7 +455,8 @@ int ttMain(IplImage * theFrame){
     cvPutText(outputFrame,angt,cvPoint(10,25),&theFont,CV_RGB(255,255,255));
  
     CvPoint centerPoint,boxCentroid,pa,pb;
-    float sAngle,otroAngle;
+    float otroAngle;
+    
     centerPoint=cvPoint(VIDEO_VERT_WIDTH/2,VIDEO_VERT_HEIGHT/2);
     theBox=ttFindBox(theContour);
     boxCentroid=cvPoint(theBox.center.x,theBox.center.y);//*/
@@ -486,7 +487,7 @@ int ttMain(IplImage * theFrame){
 
 
     if(gui->use_contours==1){
-        sAngle=atan2(boxCentroid.y-centerPoint.y,boxCentroid.x-centerPoint.x);
+        //float sAngle=atan2(boxCentroid.y-centerPoint.y,boxCentroid.x-centerPoint.x);
         sprintf(angt,"%4.2f",otroAngle*180/PI-90);
         cvPutText(outputFrame,angt,cvPoint(theBox.center.x,theBox.center.y),&theFont,CV_RGB(0,0,0));
         cvLine(outputFrame,pa,pb,CV_RGB(0,0,0),2,8,0);//*/

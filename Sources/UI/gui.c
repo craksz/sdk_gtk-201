@@ -161,7 +161,8 @@ static void keyPressed(GtkWidget *widget,GdkEventKey *kevent, gpointer data){
 gboolean on_popup_focus_out (GtkWidget *widget,GdkEventFocus *event,gpointer data){
 
 	//gtk_container_remove(GTK_CONTAINER(widget),gui->classImage);
-	int t=(int)	data;
+	
+    //int t=(int)	data;
 	
 	//printf("ASDFASDFA %d",t);
   gtk_widget_hide (widget);
