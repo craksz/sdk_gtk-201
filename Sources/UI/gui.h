@@ -17,7 +17,7 @@
 #define STREAM_HEIGHT 512
 #endif
 
-#define USE_IMAGE_MANUAL_CONTROL                1
+#define USE_IMAGE_MANUAL_CONTROL                0
 
 
 typedef enum{

@@ -121,7 +121,7 @@ double getVControlVout(int index){
 }
 //static char theString[500];
 
-void vControlUpdate(vControlVars theVar,double vin){
+void vControlSetVin(vControlVars theVar,double vin){
     vControl * buffControl=getVControl(theVar);
     buffControl->vin=vin;
 }

@@ -69,8 +69,7 @@ inline C_RESULT demo_navdata_client_process( const navdata_unpacked_t* const nav
     }
     else 
         theCounter++;
-    //buffControl=getVControl(4);
-    //buffControl->vin=nd->altitude;
+    vControlSetVin(varZ,nd->altitude);
 	
   return C_OK;
 }

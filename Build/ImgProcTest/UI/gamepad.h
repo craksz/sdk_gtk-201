@@ -113,7 +113,7 @@ Manual *getManual();
 void clearManual();
 float getManualVariable(int index);
 
-void vControlUpdate(vControlVars theVar,double vin);
+void vControlSetVin(vControlVars theVar,double vin);
 double getVControlVout(int index);
 
 extern input_device_t fpad;

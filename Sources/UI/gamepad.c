@@ -13,9 +13,8 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#include <linux/joystick.h>
-
 #include <ardrone_api.h>
+#include <ardrone_tool/UI/ardrone_input.h>
 #include <VP_Os/vp_os_print.h>
 #include <VP_Os/vp_os_types.h>
 #include "gamepad.h"
@@ -157,38 +156,39 @@ vControl* getVControl(vControlVars index){
 	}
 }
 
-float vControlGetVout(vControlVars index){
+double vControlGetVout(vControlVars index){
     vControl * buffControl=getVControl(index);
     if(buffControl!=NULL)
         return (float)buffControl->vout;
     return 0;
 }
-//static char theString[500];
 
-void vControlUpdate(vControlVars theVar,float vin){
-    vControl * buffControl=getVControl(theVar);
-    if(buffControl!=NULL)
-        buffControl->vin=(double)vin;
-}
-void vControlUpdateRef(vControlVars theVar,float ref){
-    vControl * buffControl=getVControl(theVar);
-    if(buffControl!=NULL)
-        buffControl->ref=(double)ref;
-}
-
-float vControlGetRef(vControlVars theVar){
-    vControl * buffControl=getVControl(theVar);
-    if(buffControl!=NULL)
-        return (float)buffControl->ref;
-    return 0;
-}
-
-float vControlGetVin(vControlVars theVar){
+double vControlGetVin(vControlVars theVar){
     vControl * buffControl=getVControl(theVar);
     if(buffControl!=NULL)
         return (float)buffControl->vin;
     return 0;
 }
+double vControlGetRef(vControlVars theVar){
+    vControl * buffControl=getVControl(theVar);
+    if(buffControl!=NULL)
+        return (float)buffControl->ref;
+    return 0;
+}
+void vControlSetVin(vControlVars theVar,double vin){
+    vControl * buffControl=getVControl(theVar);
+    if(buffControl!=NULL&&vControlGetVin(theVar)!=vin){
+        buffControl->vin=vin;
+//        printf("vControlSetVin %d : %.15g\n\n",theVar,vin);
+    }
+}
+void vControlSetRef(vControlVars theVar,double ref){
+    vControl * buffControl=getVControl(theVar);
+    if(buffControl!=NULL)
+        buffControl->ref=ref;
+}
+
+
 
 void fGraphUpdateRef(double ref){
     zg.ref=ref;
@@ -213,10 +213,10 @@ C_RESULT open_fpad(void){
 	inControl( &X );
 	inControl( &Y );
 	inControl( &Yaw );
-    vControlUpdateRef(varZ,heightTop);
-    vControlUpdateRef(varX,0.0);
-    vControlUpdateRef(varY,0.0);
-    vControlUpdateRef(varYaw,0.0);
+    vControlSetRef(varZ,heightTop);
+    vControlSetRef(varX,0.0);
+    vControlSetRef(varY,0.0);
+    vControlSetRef(varYaw,0.0);
     fGraphUpdateRef(Z.ref);
 	
 	/*Z.name="Z";
@@ -233,10 +233,10 @@ void updateTestModeRefs(){
     static int theFlag=0;
     if(timer<heightTestModeTop){
         if(theFlag%2==0){
-            vControlUpdateRef(varZ,heightTestModeH1);
+            vControlSetRef(varZ,heightTestModeH1);
         }
         else{
-            vControlUpdateRef(varZ,heightTestModeH2);
+            vControlSetRef(varZ,heightTestModeH2);
         }
         fGraphUpdateRef(Z.ref);
         timer++;
@@ -251,7 +251,7 @@ void updateTestModeRefs(){
 
 bool_t manualControlCheckAndRun(){
     if(manualControl.phi!=0||manualControl.theta!=0||manualControl.gaz!=0||manualControl.yaw!=0){
-        ardrone_at_set_progress_cmd( 1,manualControl.phi,manualControl.theta,manualControl.gaz,manualControl.yaw);
+        ardrone_tool_set_progressive_cmd( 1,manualControl.phi,manualControl.theta,manualControl.gaz,manualControl.yaw,0.0,0.0);
         //ardrone_at_set_led_animation(FIRE,10,1);
         return TRUE;
 	}
@@ -334,18 +334,11 @@ void vControlTask(){
 				if(vControlGetVout(varZ)<0){
 					Z.vout*=0.125;
 				}
-			//printControlsToGui();
             if(vControlGetVout(varY)!=0||vControlGetVout(varX)!=0){
-				ardrone_at_set_progress_cmd( 1,vControlGetVout(varX),-vControlGetVout(varY),vControlGetVout(varZ),0);
-				//counter001++;
+				ardrone_tool_set_progressive_cmd( 1,-(float)vControlGetVout(varX),-(float)vControlGetVout(varY),(float)vControlGetVout(varZ),0.0,0.0,0.0);
 			}
 			else{
-				//counter001=0;
-				ardrone_at_set_progress_cmd( 1,0,0,vControlGetVout(varZ),0);
-				//sprintf(theString,"X:\t%0.3f\nY:\t%0.3f\nZ:\t%0.3f\n",-X.vout,Y.vout,Z.vout);
-				//gtk_label_set_text((GtkLabel*)gui->textBox,theString);
-				//printf("%s\n",theString);
-				//ardrone_at_set_led_animation(1,2,1);
+				ardrone_tool_set_progressive_cmd( 0,0,0,vControlGetVout(varZ),0,0,0);
 			}
 			//}
 			//printf("%2.5f\n",-X.vout);

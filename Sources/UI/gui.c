@@ -127,11 +127,11 @@ static void keyPressed(GtkWidget *widget,GdkEventKey *kevent, gpointer data){
 //  			ctrlBuff->gaz=-step;
 				return;
  		 	case '+':
-                vControlUpdateRef(varZ,vControlGetRef(varZ)+100);
+                vControlSetRef(varZ,vControlGetRef(varZ)+100);
  //		 		printf("newZvalue=%2.2f\n",buffControl->Ref);
 				return;
  		 	case '-':
-                vControlUpdateRef(varZ,vControlGetRef(varZ)-100);
+                vControlSetRef(varZ,vControlGetRef(varZ)-100);
  //		 		printf("newZvalue=%2.2f\n",buffControl->Ref);
 				return;
 			default:

@@ -421,8 +421,8 @@ int ttMain(IplImage * theFrame){
     else
         theCounter++;
 
-    vControlUpdate(varX,TEST_MODE_XY_X*xyTestModeXDir);
-    vControlUpdate(varY,TEST_MODE_XY_Y*xyTestModeYDir);
+    vControlSetVin(varX,TEST_MODE_XY_X*xyTestModeXDir);
+    vControlSetVin(varY,TEST_MODE_XY_Y*xyTestModeYDir);
 
 #else
     ttSegmenter(theFrame,tempFrame,gui->segColor);
@@ -430,6 +430,10 @@ int ttMain(IplImage * theFrame){
     theContour=ttFindContours(tempFrame);
     if (theContour==NULL){
         PrintOnGui("no contour found!!");
+
+        vControlSetVin(varX,0.0);
+        vControlSetVin(varY,0.0);
+        vControlSetVin(varYaw,0.0);
         return IMG_PROC_ERROR_NO_CONTOURS_FOUND;
     }
     PrintOnGui("");
@@ -477,8 +481,8 @@ int ttMain(IplImage * theFrame){
         pb=cvPoint(boxCentroid.x-theSide*sin(otroAngle),boxCentroid.y-theSide*cos(otroAngle));
     }
     //theSide=theBox.size.width;
-    vControlUpdate(varX,boxCentroid.x/1.0-centerPoint.x/1.0);
-    vControlUpdate(varY,boxCentroid.y/1.0-centerPoint.y/1.0);
+    vControlSetVin(varX,boxCentroid.x/1.0-centerPoint.x/1.0);
+    vControlSetVin(varY,boxCentroid.y/1.0-centerPoint.y/1.0);
 
 
     if(gui->use_contours==1){
@@ -492,7 +496,7 @@ int ttMain(IplImage * theFrame){
         cvLine(outputFrame,centerPoint,cvPoint(centerPoint.x,20+centerPoint.y),CV_RGB(0,0,255),1,8,0);//*/
     }
 
-    vControlUpdate(varYaw,-otroAngle*180/PI+90);
+    vControlSetVin(varYaw,-otroAngle*180/PI+90);
 #endif
     ttDrawDirections(outputFrame,gui->use_contours);
     cvZero(theFrame);

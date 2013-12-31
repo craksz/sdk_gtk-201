@@ -6,24 +6,19 @@
 
 
 #define switchTop 5
-#define XGAIN1 1.8
-#define XGAIN2 0.5
-#define XGAIN3 1.0
-#define YGAIN1 1.8
-#define YGAIN2 0.5
-#define YGAIN3 1.0
-#define ZGAIN1 0.8
+#define XGAIN1 1.3
+#define XGAIN2 1.0
+#define XGAIN3 0.2
+#define YGAIN1 1.3
+#define YGAIN2 1.0
+#define YGAIN3 0.2
+#define ZGAIN1 0.5
 #define ZGAIN2 3.0
-#define ZGAIN3 1.0
+#define ZGAIN3 0.8
 #define WGAIN1 1.1
 #define WGAIN2 3.3
 #define WGAIN3 1.0
 #define YAWTOLERANCE 10
-
-#define VCONTROL_X          1
-#define VCONTROL_Y          2
-#define VCONTROL_Z          3
-#define VCONTROL_W          4
 
 #define GAMEPAD_LOGICTECH_ID 0x046dc21a
 
@@ -105,15 +100,15 @@ typedef struct {
 IplImage *getImage();
 Manual *getManual();
 void clearManual();
-float getManualVariable(ManualVars index);
-void setManualVariable(ManualVars index, float value);
+float getManualVariable(ManualVars theVar);
+void setManualVariable(ManualVars theVar, float value);
 
-void vControlUpdate(vControlVars theVar,float vin);
-void vControlUpdateRef(vControlVars theVar,float ref);
-float vControlGetRef(vControlVars theVar);
+void vControlSetVin(vControlVars theVar,double vin);
+void vControlSetRef(vControlVars theVar,double ref);
 
-float vControlGetVin(vControlVars theVar);
-float vControlGetVout(vControlVars index);
+double vControlGetRef(vControlVars theVar);
+double vControlGetVin(vControlVars theVar);
+double vControlGetVout(vControlVars theVar);
 
 extern input_device_t fpad;
 
