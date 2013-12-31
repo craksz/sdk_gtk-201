@@ -22,12 +22,6 @@
 #include "fuzzyControl.h"
 
 
-#define heightTop 700
-#define heightTestMode 0
-#define heightTestModeTop 500
-#define heightTestModeH1 1500
-#define heightTestModeH2 1000
-
 
 
 typedef struct {
@@ -47,27 +41,6 @@ static C_RESULT add_device(device_t* device, const int32_t id);
 
 static C_RESULT parse_proc_input_devices(FILE* f, const int32_t id);
 
-/*input_device_t gamepad = {
-  "Gamepad",
-  open_gamepad,
-  update_gamepad,
-  close_gamepad
-};*/
-
-/*input_device_t radioGP = {
-  "GreatPlanes",
-  open_radioGP,
-  update_radioGP,
-  close_radioGP
-};/*/
-
-
-/*input_device_t ps3pad = {
-  "PS3Gamepad",
-  open_ps3pad,
-  update_ps3pad,
-  close_ps3pad
-};//*/
 
 input_device_t fpad = {
   "fuzzyPad",
@@ -82,7 +55,6 @@ input_device_t fpad = {
 
 Manual manualControl;
 IplImage* zvg;// = cvCreateImage(cvSize(300,500),IPL_DEPTH_8U,3); 
-fGraph zg;	
 FILE *datosG;
 	
 
@@ -133,26 +105,6 @@ void setManualVariable(ManualVars index, float value){
     }
 }
 
-vControl Z;
-vControl X;
-vControl Y;
-vControl Yaw;
-
-vControl* getVControl(vControlVars index){
-	switch (index){
-		case varX:
-			return &X; 
-		case varY:
-			return &Y;
-		case varYaw:
-			return &Yaw;
-		case varZ:
-			return &Z;
-		default:
-        	return NULL;
-	}
-}
-
 double vControlGetVout(vControlVars index){
     vControl * buffControl=getVControl(index);
     if(buffControl!=NULL)
@@ -187,9 +139,6 @@ void vControlSetRef(vControlVars theVar,double ref){
 
 
 
-void fGraphUpdateRef(double ref){
-    zg.ref=ref;
-}
 	
 C_RESULT open_fpad(void){
 	
@@ -204,23 +153,8 @@ C_RESULT open_fpad(void){
 	fprintf( datosG, "#	Error X	    	Error Y	 	Altura		Alt. Ref	Yaw\n");	
 
 	zvg = cvCreateImage(cvSize(600,600),IPL_DEPTH_8U,3); 
-	inGraph( &zg );
 	
-	inControl( &Z );
-	inControl( &X );
-	inControl( &Y );
-	inControl( &Yaw );
-    vControlSetRef(varZ,heightTop);
-    vControlSetRef(varX,0.0);
-    vControlSetRef(varY,0.0);
-    vControlSetRef(varYaw,0.0);
-    fGraphUpdateRef(Z.ref);
-	
-	/*Z.name="Z";
-	X.name="X";
-	Y.name="Y";
-	Y.name="Y";*/
-	
+    vControlInit();
 	//definicion
 	return C_OK;
 }
@@ -235,12 +169,12 @@ void updateTestModeRefs(){
         else{
             vControlSetRef(varZ,heightTestModeH2);
         }
-        fGraphUpdateRef(Z.ref);
+        fGraphUpdateRef(vControlGetRef(varZ));
         timer++;
         //printf("%d!\n",timer);
     }
     else {
-        printf("CHANGE to %0.2f !!!\n\n",Z.ref);
+        printf("CHANGE to %0.2f !!!\n\n",vControlGetRef(varZ));
         theFlag++;
         timer=0;
     }
@@ -300,51 +234,28 @@ void printControlsToGui(){
 }
 
 void vControlTask(){
+    
+    float zComp=1.0;
+    
+    fGraph * zg=getFGraph();
 
-  		//static GdkPixbuf *pixbuf = NULL;
-  		
-		  //gui_t *gui = get_gui();
-			//static int counter001=0;
-			zg.z=Z.vin;
-			zg.x=X.vin;
-			zg.y=Y.vin;
-			zg.w=Yaw.vin;
-			
-			fprintf( datosG, "%d\t%lf\t%lf\t%lf\t%lf\t%lf\n", zg.counter+300*zg.counter2, zg.x, zg.y, zg.z, zg.ref, zg.w );
+    fprintf( datosG, "%d\t%lf\t%lf\t%lf\t%lf\t%lf\n", zg->counter+300*zg->counter2, zg->x, zg->y, zg->z, zg->ref, zg->w );
 
-			fuzzyGraph( &zg, zvg );
-    	
-			fuzzyControl(&Z,&X,&Y,&Yaw);
-			//printf(">>>%5.2f",fabs(Z.vin-Z.ref));
-			//if(fabs(Z.vin-Z.ref)<200||Z.vin>Z.ref){
-				//ardrone_at_set_progress_cmd( 0,-X.vout,Y.vout,Z.vout,Yaw.vout);
-			/*}
-			else
-				ardrone_at_set_progress_cmd( 0,0,0,Z.vout,0);//*/
-			/*if(fabs(X.vin-X.ref)<YAWTOLERANCE&&fabs(Y.vin-Y.ref)<YAWTOLERANCE){
-				ardrone_at_set_progress_cmd( 1,-X.vout,Y.vout,Z.vout,0);
-			}
-			else{
-				//ardrone_at_reset_com_watchdog();//*/
+    fuzzyGraph( zg, zvg );
+
+    fuzzyControl();
             
-            
-				if(vControlGetVout(varZ)<0){
-					Z.vout*=0.125;
-				}
-            if(vControlGetVout(varY)!=0||vControlGetVout(varX)!=0){
-				ardrone_tool_set_progressive_cmd( 1,-(float)vControlGetVout(varX),-(float)vControlGetVout(varY),(float)vControlGetVout(varZ),0.0,0.0,0.0);
-			}
-			else{
-				ardrone_tool_set_progressive_cmd( 0,0,0,vControlGetVout(varZ),0,0,0);
-			}
-			//}
-			//printf("%2.5f\n",-X.vout);
-			//printf("-");
+    if(vControlGetVout(varZ)<0){
+        zComp=0.125;
+    }
+    if(vControlGetVout(varY)!=0||vControlGetVout(varX)!=0){
+        ardrone_tool_set_progressive_cmd( 1,-(float)vControlGetVout(varX),-(float)vControlGetVout(varY),zComp*(float)vControlGetVout(varZ),0.0,0.0,0.0);
+    }
+    else{
+        ardrone_tool_set_progressive_cmd( 0,0,0,zComp*(float)vControlGetVout(varZ),0,0,0);
+    }
+    
 }
-
-
-
-
 
 static int32_t make_id(device_t* device)
 {

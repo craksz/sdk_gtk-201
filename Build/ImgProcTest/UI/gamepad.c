@@ -142,20 +142,14 @@ C_RESULT open_fpad(void){
 	zvg = cvCreateImage(cvSize(600,600),IPL_DEPTH_8U,3); 
 	inGraph( &zg );
 	
-	inControl( &Z );
-	inControl( &X );
-	inControl( &Y );
-	inControl( &Yaw );
-	Z.ref=heightTop;
-	X.ref = 0.0;
-	Y.ref = 0.0;
-	Yaw.ref = 0.0;
-	zg.ref=Z.ref;
-	
-	/*Z.name="Z";
-	X.name="X";
-	Y.name="Y";
-	Y.name="Y";*/
+	inControl( varZ );
+	inControl( varX );
+	inControl( varY );
+	inControl( varYaw );
+	vControlSetRef(varZ,heightTop);
+    vControlSetRef(varY,0.0);
+	vControlSetRef(varX,0.0);
+	vControlSetRef(varYaw,0.0);
 	
 	//definicion
 	return C_OK;

@@ -24,6 +24,13 @@
 #define PositiveTolerance 10
 
 
+#define heightTop 700
+#define heightTestMode 0
+#define heightTestModeTop 500
+#define heightTestModeH1 1500
+#define heightTestModeH2 1000
+
+
 #define GAMEPAD_LOGICTECH_ID 0x046dc21a
 
 typedef enum {
@@ -122,7 +129,6 @@ C_RESULT close_fpad(void);
 
 
 
-vControl* getVControl(vControlVars);
 
 void vControlTask(void);
 

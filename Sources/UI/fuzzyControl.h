@@ -4,11 +4,31 @@
 #include "gamepad.h"
 #include "UI/gui.h"
 
+#define VCONTROL_NAME_VARX          "Posición X"
+#define VCONTROL_NAME_VARY          "Posición Y"
+#define VCONTROL_NAME_VARZ          "Altitud"
+#define VCONTROL_NAME_VARW          "Posición Yaw"
+
+#define VCONTROL_REFERENCE_VARX     0.0     
+#define VCONTROL_REFERENCE_VARY     0.0
+#define VCONTROL_REFERENCE_VARZ     heightTop
+#define VCONTROL_REFERENCE_VARW     0.0
+
+vControl* getVControl(vControlVars);
+
+void vControlInit(void);
+
+fGraph * getFGraph();
+
+void fGraphUpdateRef(double ref);
+
+void fGraphUpdate();
+
 //	Proceso de Control
-void fuzzyControl ( vControl *altitud, vControl *X, vControl *Y, vControl *Yaw );
+void fuzzyControl (void);
 
 //	Inicializa las structura de control a cero
-void inControl ( vControl *control );
+void inControl ( vControlVars theVarIndex );
 
 //	Establece las escalas de Error, Rate para el control de altitud
 void setSkale ( vControl *control, double ke, double kr, double ku );
@@ -32,7 +52,7 @@ void minimum( double *var1 , double *var2 , double *var3 );
 void maximum( double *var1, double *var2, double *var3);
 
 //	Defusificación: Linear Defuzzyfier
-void Defuzz( double *u , double *h , double *ku , double *vout );
+void Defuzz( vControl * theVar , double *u , double *h  );
 
 
 

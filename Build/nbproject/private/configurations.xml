@@ -30,6 +30,23 @@
         <df name="9">
         </df>
       </df>
+      <df name="ImgProcTest">
+        <df name="ImgProc">
+          <in>ImgProc.c</in>
+          <in>ImgProc.h</in>
+        </df>
+        <df name="ttiofiles">
+          <in>ttiofiles.c</in>
+          <in>ttiofiles.h</in>
+        </df>
+        <df name="UI">
+          <in>gamepad.c</in>
+          <in>gamepad.h</in>
+          <in>gui.c</in>
+          <in>gui.h</in>
+        </df>
+        <in>ImgProcTest.c</in>
+      </df>
       <df name="media_20131110_003234">
       </df>
       <df name="testing">
@@ -63,10 +80,95 @@
       </df>
       <df name="theReference">
       </df>
+      <df name="ttTest">
+        <df name="ardrone_tool">
+          <df name="Control">
+            <in>ardrone_control.h</in>
+            <in>ardrone_navdata_control.c</in>
+            <in>ardrone_navdata_control.h</in>
+          </df>
+          <df name="Navdata">
+            <in>ardrone_academy_navdata.c</in>
+            <in>ardrone_academy_navdata.h</in>
+            <in>ardrone_general_navdata.c</in>
+            <in>ardrone_general_navdata.h</in>
+            <in>ardrone_navdata_client.h</in>
+          </df>
+          <df name="UI">
+            <in>ardrone_input.h</in>
+          </df>
+          <df name="Video">
+            <in>video_navdata_handler.c</in>
+            <in>video_navdata_handler.h</in>
+            <in>video_stage.h</in>
+            <in>video_stage_decoder.h</in>
+            <in>video_stage_latency_estimation.h</in>
+            <in>vlib_stage_decode.h</in>
+          </df>
+          <in>ardrone_tool.h</in>
+          <in>ardrone_tool_configuration.h</in>
+          <in>ardrone_version.h</in>
+        </df>
+        <df name="ATcodec">
+          <in>ATcodec_api.h</in>
+        </df>
+        <df name="ImgProc">
+          <in>ImgProc.c</in>
+          <in>ImgProc.h</in>
+        </df>
+        <df name="Navdata">
+          <in>navdata.c</in>
+          <in>navdata.h</in>
+        </df>
+        <df name="ttiofiles">
+          <in>ttiofiles.c</in>
+          <in>ttiofiles.h</in>
+        </df>
+        <df name="UI">
+          <in>gamepad.c</in>
+          <in>gamepad.h</in>
+          <in>gui.c</in>
+          <in>gui.h</in>
+          <in>ui.c</in>
+          <in>ui.h</in>
+        </df>
+        <df name="Video">
+          <in>ihm_stages_o_gtk.c</in>
+          <in>ihm_stages_o_gtk.h</in>
+          <in>video_stage.c</in>
+          <in>video_stage.h</in>
+        </df>
+        <df name="VP_Api">
+          <in>vp_api.h</in>
+          <in>vp_api_picture.h</in>
+          <in>vp_api_thread_helper.h</in>
+        </df>
+        <df name="VP_Os">
+          <in>vp_os_print.h</in>
+          <in>vp_os_signal.h</in>
+          <in>vp_os_thread_dep.h</in>
+          <in>vp_os_types.h</in>
+        </df>
+        <in>ardrone_api.h</in>
+        <in>ardrone_testing_tool.c</in>
+        <in>ardrone_testing_tool.h</in>
+        <in>config.h</in>
+        <in>fakelib.c</in>
+        <in>fakelib.h</in>
+        <in>navdata_common.h</in>
+        <in>navdata_keys.h</in>
+      </df>
+      <in>GtkTest.c</in>
+      <in>calibrationTest.c</in>
       <in>difuso-new.cpp</in>
       <in>difuso.cpp</in>
+      <in>errorTrainingTest.c</in>
       <in>fuzzy.c</in>
+      <in>gtkThreadTest.c</in>
+      <in>imageLoadttcontoursTest.c</in>
       <in>pipeG.c</in>
+      <in>pointersTest.c</in>
+      <in>roiTest.c</in>
       <in>testCairo.c</in>
       <in>tester01.c</in>
       <in>testing01.c</in>
@@ -74,7 +176,6 @@
       <in>testing03.c</in>
       <in>testing04.c</in>
       <in>testing05.c</in>
-      <in>testing06.c</in>
       <in>testing07.c</in>
       <in>testing08.c</in>
       <in>testing09.c</in>
@@ -84,7 +185,10 @@
       <in>testing13.c</in>
       <in>ttcontours.h</in>
       <in>ttcontourstest.h</in>
+      <in>ttiofilesTest.c</in>
       <in>umbral_hsv.cpp</in>
+      <in>webcamOCVTest.c</in>
+      <in>webcamOCVttcontoursTest.c</in>
       <in>xvgraph.c</in>
     </df>
   </logicalFolder>

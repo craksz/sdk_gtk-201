@@ -2484,6 +2484,7 @@
                 <itemPath>../Sources/ttiofiles/ttiofiles.h</itemPath>
               </logicalFolder>
               <logicalFolder name="UI" displayName="UI" projectFiles="true">
+                <itemPath>../Sources/UI/fuzzyControl.c</itemPath>
                 <itemPath>../Sources/UI/gamepad.c</itemPath>
                 <itemPath>../Sources/UI/gamepad.h</itemPath>
                 <itemPath>../Sources/UI/gui.c</itemPath>
@@ -2492,12 +2493,8 @@
                 <itemPath>../Sources/UI/ui.h</itemPath>
               </logicalFolder>
               <logicalFolder name="Video" displayName="Video" projectFiles="true">
-                <itemPath>../Sources/Video/display_stage.c</itemPath>
-                <itemPath>../Sources/Video/display_stage.h</itemPath>
-                <itemPath>../Sources/Video/post_stage.c</itemPath>
-                <itemPath>../Sources/Video/post_stage.h</itemPath>
-                <itemPath>../Sources/Video/pre_stage.c</itemPath>
-                <itemPath>../Sources/Video/pre_stage.h</itemPath>
+                <itemPath>../Sources/Video/ihm_stages_o_gtk.c</itemPath>
+                <itemPath>../Sources/Video/ihm_stages_o_gtk.h</itemPath>
                 <itemPath>../Sources/Video/video_stage.c</itemPath>
                 <itemPath>../Sources/Video/video_stage.h</itemPath>
               </logicalFolder>
@@ -5753,6 +5750,8 @@
       </item>
       <item path="../Sources/Navdata/navdata.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="../Sources/UI/fuzzyControl.c" ex="false" tool="0" flavor2="0">
+      </item>
       <item path="../Sources/UI/gamepad.c" ex="false" tool="0" flavor2="2">
         <cTool>
         </cTool>
@@ -5771,17 +5770,15 @@
       </item>
       <item path="../Sources/UI/ui.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="../Sources/Video/display_stage.c" ex="false" tool="0" flavor2="0">
+      <item path="../Sources/Video/ihm_stages_o_gtk.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
       </item>
-      <item path="../Sources/Video/display_stage.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="../Sources/Video/post_stage.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="../Sources/Video/post_stage.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="../Sources/Video/pre_stage.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="../Sources/Video/pre_stage.h" ex="false" tool="3" flavor2="0">
+      <item path="../Sources/Video/ihm_stages_o_gtk.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
       </item>
       <item path="../Sources/Video/video_stage.c" ex="false" tool="0" flavor2="2">
         <cTool>

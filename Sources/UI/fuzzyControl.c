@@ -1,5 +1,44 @@
 #include "fuzzyControl.h"
 
+vControl Z;
+vControl X;
+vControl Y;
+vControl Yaw;
+fGraph zg;	
+
+fGraph * getFGraph(){
+    return &zg;
+}
+
+
+void fGraphUpdateRef(double ref){
+    zg.ref=ref;
+}
+
+void fGraphUpdate(){
+    
+    zg.z=vControlGetVin(varZ);
+    zg.x=vControlGetVin(varX);
+    zg.y=vControlGetVin(varY);
+    zg.w=vControlGetVin(varYaw);
+}
+
+vControl* getVControl(vControlVars index){
+	switch (index){
+		case varX:
+			return &X; 
+		case varY:
+			return &Y;
+		case varYaw:
+			return &Yaw;
+		case varZ:
+			return &Z;
+		default:
+        	return NULL;
+	}
+}
+
+
 void inGraph( fGraph *gX ){
     
     if(gX==NULL){ printf("\ninGraph null pointer\n\n"); exit(-1); }
@@ -113,13 +152,8 @@ void fuzzyGraph( fGraph *gX, IplImage *graph ){
     }//*/
 }
 
-void fuzzyControl ( vControl *altitud, vControl *X, vControl *Y, vControl *Yaw ){
-
-        if(altitud==NULL){ printf("\nfuzzyControl h null pointer\n\n"); exit(-1); }
-	if(X==NULL){ printf("\nfuzzyControl x null pointer\n\n"); exit(-1); }
-	if(Y==NULL){ printf("\nfuzzyControl y null pointer\n\n"); exit(-1); }
-	if(Yaw==NULL){ printf("\nfuzzyControl yaw null pointer\n\n"); exit(-1); }
-	
+void fuzzyControlPerVar(vControl *theVar){
+    
 //	Variables auxiliares
 	double fuzzyMem1[5];	// Auxiliar para la fuzzyficación 
 	double fuzzyMem2[5];	// Auxiliar para la fuzzyficación
@@ -128,6 +162,28 @@ void fuzzyControl ( vControl *altitud, vControl *X, vControl *Y, vControl *Yaw )
 	//double prevError;
 	double Error;
 	double Rate;
+    
+	theVar->error 	= theVar->ref - theVar->vin;
+	//setSkale( altitud, 0.08, 0.9, 1.0 );
+
+	Error = theVar->ke * theVar->error;
+	Rate = theVar->kr * ( theVar->error - theVar->error0 );
+
+	theVar->error0 = theVar->error;
+
+	fuzzification ( &Error , fuzzyMem1 );
+	fuzzification ( &Rate , fuzzyMem2 );
+	fuzzyInferenceAlt( fuzzyMem1, fuzzyMem2, vInference );
+	Defuzz( theVar, vInference , h);
+}
+
+void fuzzyControl (){
+    
+    fuzzyControlPerVar(&Z);
+    fuzzyControlPerVar(&X);
+    fuzzyControlPerVar(&Y);
+    fuzzyControlPerVar(&Yaw);
+    /*
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 //	Altitud
 	char name[] = "altitud";
@@ -195,12 +251,38 @@ void fuzzyControl ( vControl *altitud, vControl *X, vControl *Y, vControl *Yaw )
 	fuzzification ( &Error , fuzzyMem1 );
 	fuzzification ( &Rate , fuzzyMem2 );
 	fuzzyInferenceAlt( fuzzyMem1, fuzzyMem2, vInference );
-	Defuzz( vInference , h , &Yaw->ku , &Yaw->vout );
+	Defuzz( vInference , h , &Yaw->ku , &Yaw->vout );//*/
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 }
 
+void inControlName(vControlVars theVarIndex){
+    vControl *theVar=getVControl(theVarIndex);
+    switch (theVarIndex){
+        case varX:
+            theVar->name=VCONTROL_NAME_VARX;
+            setSkale( theVar, XGAIN1, XGAIN2, XGAIN3 );
+            return;
+        case varY:
+            theVar->name=VCONTROL_NAME_VARY;
+            setSkale( theVar, YGAIN1, YGAIN2, YGAIN3 );
+            return;
+        case varZ:
+            theVar->name=VCONTROL_NAME_VARZ;
+            setSkale( theVar, ZGAIN1, ZGAIN2, ZGAIN3 );
+            return;
+        case varYaw:
+            theVar->name=VCONTROL_NAME_VARW;
+            setSkale( theVar, WGAIN1, WGAIN2, WGAIN3 );
+            return;
+        default:
+            return;
+    }
+}
+
 //	Inicializa las structura de control a cero
-void inControl ( vControl *control ){
+void inControl ( vControlVars theVarIndex ){
+    
+    vControl * control=getVControl(theVarIndex);
 
 	if(control==NULL){ printf("\ninControl null pointer\n\n"); exit(-1); }
 	control->vin 	= 0.0;
@@ -213,9 +295,27 @@ void inControl ( vControl *control ){
 
 	control->error	= 0.0;
 	control->error0 = 0.0;
+    
+    inControlName(theVarIndex);
 
 	//control->name	= name;
 
+}
+
+void vControlInit(){
+    
+	inGraph( &zg );
+	
+
+	inControl( varZ );
+	inControl( varX );
+	inControl( varY );
+	inControl( varYaw );
+    vControlSetRef(varZ,VCONTROL_REFERENCE_VARZ);
+    vControlSetRef(varX,VCONTROL_REFERENCE_VARX);
+    vControlSetRef(varY,VCONTROL_REFERENCE_VARY);
+    vControlSetRef(varYaw,VCONTROL_REFERENCE_VARW);
+    fGraphUpdateRef(vControlGetRef(varZ));
 }
 
 //	Establece las escalas de Error, Rate para el control de altitud
@@ -427,20 +527,20 @@ void maximum( double *var1, double *var2, double *var3){
 }
 
 //	Defusificación: Linear Defuzzyfier
-void Defuzz( double *u , double *h , double *ku , double *vout ){
+void Defuzz( vControl * theVar, double *u , double *h){
 	double aux = 0.0;
-	*vout = 0.0;
+	theVar->vout = 0.0;
 
 	int i;
 	for( i = 0; i < 7; i++ ){
 		aux += u[i];
-		*vout += h[i] * u[i];
+		theVar->vout += h[i] * u[i];
 	};
 
-	*vout = *ku * *vout;
+	theVar->vout = theVar->ku * theVar->vout;
 	if( aux != 0.0 ) 
-		*vout = *vout/aux;
+		theVar->vout = theVar->vout/aux;
 	else 
-		*vout = 1;
+		theVar->vout = 1;
 }
 

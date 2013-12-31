@@ -350,7 +350,7 @@ void FuzzyControl( Control &Difuso , float &vin , float *h ){
 	Defuzz( inferencia , h , &Difuso.ku , &Difuso.vout );
 }
 //	Impresión de los datos de Control
-void dispControl( Control &Difuso){
+void dispControl( Control &Difuso, char tipo){
 
 	cout<<"ccccccccccccccccccccccccccccccccccccccccccccccccccc"<<endl;
 	cout<<"Referencia "<<tipo<<":\t"<<Difuso.Ref<<endl;
