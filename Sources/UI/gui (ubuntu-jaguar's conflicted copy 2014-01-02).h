@@ -3,12 +3,11 @@
 
 //#include "ttiofiles.h"
 #include "ImgProc/ImgProc.h"
-#include "UI/gamepad.h"
 #include "cv.h"
 #include <gtk/gtk.h>
 #include <VP_Os/vp_os_types.h>
 
-#define step 0.4
+#define step 0.2
 
 
 #ifndef STREAM_WIDTH
@@ -18,6 +17,7 @@
 #define STREAM_HEIGHT 512
 #endif
 
+#define USE_IMAGE_MANUAL_CONTROL                1
 
 
 typedef enum{
@@ -58,26 +58,6 @@ typedef struct gui
   GtkWidget *classImage;
   GtkWidget *fuzzyImage;
   GtkWidget *textBox;
-  
-  GtkWidget *mainContainer;
-  GtkWidget *containerW;
-  GtkWidget *containerX;
-  GtkWidget *containerY;
-  GtkWidget *containerZ;
-  GtkWidget *spinGainZ1;
-  GtkWidget *spinGainX1;
-  GtkWidget *spinGainY1;
-  GtkWidget *spinGainW1;
-  GtkWidget *spinGainZ2;
-  GtkWidget *spinGainX2;
-  GtkWidget *spinGainY2;
-  GtkWidget *spinGainW2;
-  GtkWidget *spinGainZ3;
-  GtkWidget *spinGainX3;
-  GtkWidget *spinGainY3;
-  GtkWidget *spinGainW3;
-  
-  float gainSetBuffer[3];
   
   int ihm_is_initialized;
   int triggerOutput;

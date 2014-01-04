@@ -4,33 +4,26 @@
 #include "UI/ui.h"
 #include "cv.h"
 
-#define USE_IMAGE_MANUAL_CONTROL                0
 
 #define switchTop 5
-#define XGAIN1 0.0
-#define XGAIN2 0.0
-#define XGAIN3 0.0
-#define YGAIN1 0.0
-#define YGAIN2 0.0
-#define YGAIN3 0.0
-#define ZGAIN1 0.1
-#define ZGAIN2 0.0
+#define XGAIN1 1.8 
+#define XGAIN2 0.5
+#define XGAIN3 0.1
+#define YGAIN1 1.8
+#define YGAIN2 0.5
+#define YGAIN3 0.1
+#define ZGAIN1 0.8
+#define ZGAIN2 3.0
 #define ZGAIN3 1.0
 #define WGAIN1 1.1
 #define WGAIN2 3.3
 #define WGAIN3 1.0
 #define YAWTOLERANCE 10
 
-#define NegativeTolerance -10
-#define PositiveTolerance 10
-
-
-#define heightTop 700
-#define heightTestMode 0
-#define heightTestModeTop 500
-#define heightTestModeH1 1500
-#define heightTestModeH2 1000
-
+#define VCONTROL_X          1
+#define VCONTROL_Y          2
+#define VCONTROL_Z          3
+#define VCONTROL_W          4
 
 #define GAMEPAD_LOGICTECH_ID 0x046dc21a
 
@@ -112,15 +105,14 @@ typedef struct {
 IplImage *getImage();
 Manual *getManual();
 void clearManual();
-float getManualVariable(ManualVars theVar);
-void setManualVariable(ManualVars theVar, float value);
+float getManualVariable(ManualVars index);
+void setManualVariable(ManualVars index, float value);
 
-void vControlSetVin(vControlVars theVar,double vin);
-void vControlSetRef(vControlVars theVar,double ref);
-
+void vControlUpdate(vControlVars theVar,double vin);
+void vControlUpdateRef(vControlVars theVar,double ref);
 double vControlGetRef(vControlVars theVar);
-double vControlGetVin(vControlVars theVar);
-double vControlGetVout(vControlVars theVar);
+
+double vControlGetVout(int index);
 
 extern input_device_t fpad;
 
@@ -130,8 +122,44 @@ C_RESULT close_fpad(void);
 
 
 
+vControl* getVControl(int);
+
+//	Proceso de Control
+void fuzzyControl ( vControl *altitud, vControl *X, vControl *Y, vControl *Yaw );
+
+//	Inicializa las structura de control a cero
+void inControl ( vControl *control );
+
+//	Establece las escalas de Error, Rate para el control de altitud
+void setSkale ( vControl *control, double ke, double kr, double ku );
+
+//	Proceso de fusificación
+void fuzzification ( double *element , double *fuzzyMem );
+
+//	Ecuación de la recta con pendiente positiva
+void ecRecPos( double *x, double *y , int A, int C );
+
+//	Ecuación de la recta con pendiente negativa
+void ecRecNeg( double *x, double *y , int A, int C );
+
+//	Inferencia Difusa para altitud
+void fuzzyInferenceAlt( double *fuzzyError, double *fuzzyRate, double *vInference);
+
+//	Método de inferencia difusa: Zadeh fuzzy logic AND
+void minimum( double *var1 , double *var2 , double *var3 );
+
+//	Método de inferencia difusa: Zadeh fuzzy logic OR
+void maximum( double *var1, double *var2, double *var3);
+
+//	Defusificación: Linear Defuzzyfier
+void Defuzz( double *u , double *h , double *ku , double *vout );
 
 void vControlTask(void);
+
+
+
+void inGraph( fGraph *gX );
+void fuzzyGraph( fGraph *, IplImage * );
 
 extern input_device_t gamepad;
 

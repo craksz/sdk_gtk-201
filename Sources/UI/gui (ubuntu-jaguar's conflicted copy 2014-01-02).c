@@ -15,6 +15,8 @@ GtkWidget *popup_window;
 GtkWidget *fpopup_window; 
 
 
+
+
 #if USE_IMAGE_MANUAL_CONTROL
 IplImage * imageUp;
 IplImage * imageDown;
@@ -62,7 +64,6 @@ static void keyPressed(GtkWidget *widget,GdkEventKey *kevent, gpointer data){
     
     if(kevent->type == GDK_KEY_PRESS){  
     
-        clearManual();
         switch(kevent->keyval){
             case '2': 
                 if(kevent->type == GDK_KEY_PRESS)  {
@@ -126,11 +127,11 @@ static void keyPressed(GtkWidget *widget,GdkEventKey *kevent, gpointer data){
 //  			ctrlBuff->gaz=-step;
 				return;
  		 	case '+':
-                vControlSetRef(varZ,vControlGetRef(varZ)+100);
+                vControlUpdateRef(varZ,vControlGetRef(varZ)+100);
  //		 		printf("newZvalue=%2.2f\n",buffControl->Ref);
 				return;
  		 	case '-':
-                vControlSetRef(varZ,vControlGetRef(varZ)-100);
+                vControlUpdateRef(varZ,vControlGetRef(varZ)-100);
  //		 		printf("newZvalue=%2.2f\n",buffControl->Ref);
 				return;
 			default:
@@ -152,7 +153,6 @@ static void keyPressed(GtkWidget *widget,GdkEventKey *kevent, gpointer data){
         gui->ManualControlImage=imageCenter;
 #endif //USE_IMAGE_MANUAL_CONTROL
         clearManual();
-        //gtk_label_set_text((GtkLabel*)gui->textBox,"");
     }
 	
 }
@@ -161,8 +161,7 @@ static void keyPressed(GtkWidget *widget,GdkEventKey *kevent, gpointer data){
 gboolean on_popup_focus_out (GtkWidget *widget,GdkEventFocus *event,gpointer data){
 
 	//gtk_container_remove(GTK_CONTAINER(widget),gui->classImage);
-	
-    //int t=(int)	data;
+	int t=(int)	data;
 	
 	//printf("ASDFASDFA %d",t);
   gtk_widget_hide (widget);
@@ -342,37 +341,6 @@ void PrintOnGui(const char * theString){
     
 }
 
-setGainSet(float skale1,float skale2,float skale3){
-    gui->gainSetBuffer[0]=skale1;
-    gui->gainSetBuffer[1]=skale2;
-    gui->gainSetBuffer[2]=skale3;
-}
-
-holdCurrentGainsForVar(vControlVars index){
-    vControl* buffControl=getVControl(index);
-    setGainSet(buffControl->ke,buffControl->kr,buffControl->ku);
-}
-
-static void spin1Changed(GtkWidget *widget, gpointer data){
-    vControl * buffControl=getVControl((vControlVars)data);
-    holdCurrentGainsForVar((vControlVars)data);
-    setSkale(buffControl,gtk_spin_button_get_value(GTK_SPIN_BUTTON(widget)),gui->gainSetBuffer[1],gui->gainSetBuffer[2]);
-    return;
-}
-
-static void spin2Changed(GtkWidget *widget, gpointer data){
-    vControl * buffControl=getVControl((vControlVars)data);
-    holdCurrentGainsForVar((vControlVars)data);
-    setSkale(buffControl,gui->gainSetBuffer[0],gtk_spin_button_get_value(GTK_SPIN_BUTTON(widget)),gui->gainSetBuffer[2]);
-    return;
-}
-
-static void spin3Changed(GtkWidget *widget, gpointer data){
-    vControl * buffControl=getVControl((vControlVars)data);
-    holdCurrentGainsForVar((vControlVars)data);
-    setSkale(buffControl,gui->gainSetBuffer[0],gui->gainSetBuffer[1],gtk_spin_button_get_value(GTK_SPIN_BUTTON(widget)));
-    return;
-}
 
 
 void init_gui(int argc, char **argv)
@@ -396,11 +364,6 @@ void init_gui(int argc, char **argv)
   gui->hbox3= gtk_hbox_new(FALSE, 10);
   gui->vbox= gtk_vbox_new(FALSE, 10);
   gui->vbox2= gtk_vbox_new(FALSE, 10);
-  gui->mainContainer=gtk_hbox_new(FALSE, 10);
-  gui->containerW= gtk_vbox_new(FALSE, 10);
-  gui->containerX= gtk_vbox_new(FALSE, 10);
-  gui->containerY= gtk_vbox_new(FALSE, 10);
-  gui->containerZ= gtk_vbox_new(FALSE, 10);
   gui->cam = gtk_image_new();
   gtk_widget_set_size_request(gui->cam,176,144);
   gui->classImage = gtk_image_new();
@@ -431,35 +394,6 @@ void init_gui(int argc, char **argv)
   gui->labelW= gtk_label_new("w");
   gui->labelZ= gtk_label_new("z");
   gui->textBox= gtk_label_new("this is some text!");
-  gui->spinGainW1=gtk_spin_button_new_with_range(0.0,255,0.05);
-  gui->spinGainX1=gtk_spin_button_new_with_range(0.0,255,0.05);
-  gui->spinGainY1=gtk_spin_button_new_with_range(0.0,255,0.05);
-  gui->spinGainZ1=gtk_spin_button_new_with_range(0.0,255,0.05);
-  gui->spinGainW2=gtk_spin_button_new_with_range(0.0,255,0.05);
-  gui->spinGainX2=gtk_spin_button_new_with_range(0.0,255,0.05);
-  gui->spinGainY2=gtk_spin_button_new_with_range(0.0,255,0.05);
-  gui->spinGainZ2=gtk_spin_button_new_with_range(0.0,255,0.05);
-  gui->spinGainW3=gtk_spin_button_new_with_range(0.0,255,0.05);
-  gui->spinGainX3=gtk_spin_button_new_with_range(0.0,255,0.05);
-  gui->spinGainY3=gtk_spin_button_new_with_range(0.0,255,0.05);
-  gui->spinGainZ3=gtk_spin_button_new_with_range(0.0,255,0.05);
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui->spinGainW1),WGAIN1);
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui->spinGainX1),XGAIN1);
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui->spinGainY1),YGAIN1);
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui->spinGainZ1),ZGAIN1);
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui->spinGainW2),WGAIN2);
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui->spinGainX2),XGAIN2);
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui->spinGainY2),YGAIN2);
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui->spinGainZ2),ZGAIN2);
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui->spinGainW3),WGAIN3);
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui->spinGainX3),XGAIN3);
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui->spinGainY3),YGAIN3);
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui->spinGainZ3),ZGAIN3);
-  
-  gui->gainSetBuffer[0]=0.0;
-  gui->gainSetBuffer[1]=0.0;
-  gui->gainSetBuffer[2]=0.0;
-  
   gui->use_contours=1;
   gui->segColor=0;
   gui->currentClassValue=9;
@@ -494,8 +428,6 @@ void init_gui(int argc, char **argv)
         cvCvtColor(imageLeft,imageLeft,CV_RGB2BGR);
         cvCvtColor(imageRight,imageRight,CV_RGB2BGR);
         cvCvtColor(imageCenter,imageCenter,CV_RGB2BGR);
-        cvCvtColor(imageCw,imageCw,CV_RGB2BGR);
-        cvCvtColor(imageCcw,imageCcw,CV_RGB2BGR);
         gui->ManualControlImage=imageCenter;
     #endif
   
@@ -511,18 +443,6 @@ void init_gui(int argc, char **argv)
   g_signal_connect (gui->fuzzyGraph, "clicked",G_CALLBACK (fuzzyImageDisplay), NULL);
   g_signal_connect(G_OBJECT(gui->window), "key_press_event", G_CALLBACK(keyPressed),gui->window);
   g_signal_connect(G_OBJECT(gui->window), "key_release_event", G_CALLBACK(keyPressed),gui->window);
-  g_signal_connect(gui->spinGainW1,"changed",G_CALLBACK(spin1Changed), (gpointer)varYaw);
-  g_signal_connect(gui->spinGainX1,"changed",G_CALLBACK(spin1Changed), (gpointer)varX);
-  g_signal_connect(gui->spinGainY1,"changed",G_CALLBACK(spin1Changed), (gpointer)varY);
-  g_signal_connect(gui->spinGainZ1,"changed",G_CALLBACK(spin1Changed), (gpointer)varZ);
-  g_signal_connect(gui->spinGainW2,"changed",G_CALLBACK(spin2Changed), (gpointer)varYaw);
-  g_signal_connect(gui->spinGainX2,"changed",G_CALLBACK(spin2Changed), (gpointer)varX);
-  g_signal_connect(gui->spinGainY2,"changed",G_CALLBACK(spin2Changed), (gpointer)varY);
-  g_signal_connect(gui->spinGainZ2,"changed",G_CALLBACK(spin2Changed), (gpointer)varZ);
-  g_signal_connect(gui->spinGainW3,"changed",G_CALLBACK(spin3Changed), (gpointer)varYaw);
-  g_signal_connect(gui->spinGainX3,"changed",G_CALLBACK(spin3Changed), (gpointer)varX);
-  g_signal_connect(gui->spinGainY3,"changed",G_CALLBACK(spin3Changed), (gpointer)varY);
-  g_signal_connect(gui->spinGainZ3,"changed",G_CALLBACK(spin3Changed), (gpointer)varZ);
   
   gtk_box_pack_start(GTK_BOX(gui->vbox2), gui->cam, TRUE, TRUE, 10);
   gtk_box_pack_start(GTK_BOX(gui->vbox2), gui->hbox3, TRUE, TRUE, 10);
@@ -538,40 +458,14 @@ void init_gui(int argc, char **argv)
   gtk_box_pack_start(GTK_BOX(gui->hbox), gui->box, FALSE, TRUE, 10);	
   //gtk_box_pack_start(GTK_BOX(gui->hbox), gui->classImage, FALSE, TRUE, 10);	
   
-  /*gtk_box_pack_start(GTK_BOX(gui->hbox2), gui->labelW, FALSE, TRUE, 10);
   gtk_box_pack_start(GTK_BOX(gui->hbox2), gui->labelX, FALSE, TRUE, 10);
   gtk_box_pack_start(GTK_BOX(gui->hbox2), gui->labelY, FALSE, TRUE, 10);
-  gtk_box_pack_start(GTK_BOX(gui->hbox2), gui->labelZ, FALSE, TRUE, 10);//*/
-  gtk_box_pack_start(GTK_BOX(gui->containerW), gui->labelW, FALSE, TRUE, 10);
-  gtk_box_pack_start(GTK_BOX(gui->containerX), gui->labelX, FALSE, TRUE, 10);
-  gtk_box_pack_start(GTK_BOX(gui->containerY), gui->labelY, FALSE, TRUE, 10);
-  gtk_box_pack_start(GTK_BOX(gui->containerZ), gui->labelZ, FALSE, TRUE, 10);
+  gtk_box_pack_start(GTK_BOX(gui->hbox2), gui->labelW, FALSE, TRUE, 10);
+  gtk_box_pack_start(GTK_BOX(gui->hbox2), gui->labelZ, FALSE, TRUE, 10);
   
-  gtk_box_pack_start(GTK_BOX(gui->containerW), gui->spinGainW1, FALSE, TRUE, 10);
-  gtk_box_pack_start(GTK_BOX(gui->containerX), gui->spinGainX1, FALSE, TRUE, 10);
-  gtk_box_pack_start(GTK_BOX(gui->containerY), gui->spinGainY1, FALSE, TRUE, 10);
-  gtk_box_pack_start(GTK_BOX(gui->containerZ), gui->spinGainZ1, FALSE, TRUE, 10);
-    
-  gtk_box_pack_start(GTK_BOX(gui->containerW), gui->spinGainW2, FALSE, TRUE, 10);
-  gtk_box_pack_start(GTK_BOX(gui->containerX), gui->spinGainX2, FALSE, TRUE, 10);
-  gtk_box_pack_start(GTK_BOX(gui->containerY), gui->spinGainY2, FALSE, TRUE, 10);
-  gtk_box_pack_start(GTK_BOX(gui->containerZ), gui->spinGainZ2, FALSE, TRUE, 10);
-    
-  gtk_box_pack_start(GTK_BOX(gui->containerW), gui->spinGainW3, FALSE, TRUE, 10);
-  gtk_box_pack_start(GTK_BOX(gui->containerX), gui->spinGainX3, FALSE, TRUE, 10);
-  gtk_box_pack_start(GTK_BOX(gui->containerY), gui->spinGainY3, FALSE, TRUE, 10);
-  gtk_box_pack_start(GTK_BOX(gui->containerZ), gui->spinGainZ3, FALSE, TRUE, 10);
-  
-  gtk_box_pack_start(GTK_BOX(gui->mainContainer), gui->containerW, FALSE, TRUE, 10);
-  gtk_box_pack_start(GTK_BOX(gui->mainContainer), gui->containerX, FALSE, TRUE, 10);
-  gtk_box_pack_start(GTK_BOX(gui->mainContainer), gui->containerY, FALSE, TRUE, 10);
-  gtk_box_pack_start(GTK_BOX(gui->mainContainer), gui->containerZ, FALSE, TRUE, 10);
-  
-    
   gtk_box_pack_start(GTK_BOX(gui->vbox), gui->hbox, FALSE, TRUE, 10);
   gtk_box_pack_start(GTK_BOX(gui->vbox), gui->hbox2, FALSE, TRUE, 10);
   gtk_box_pack_start(GTK_BOX(gui->vbox), gui->textBox, FALSE, TRUE, 10);
-  gtk_box_pack_start(GTK_BOX(gui->vbox), gui->mainContainer, FALSE, TRUE, 10);
   
   gtk_container_add(GTK_CONTAINER(gui->window),gui->vbox);
   gtk_box_pack_start(GTK_BOX(gui->box), gui->red, TRUE, TRUE, 10);

@@ -22,7 +22,6 @@ inline C_RESULT demo_navdata_client_process( const navdata_unpacked_t* const nav
 {
 	const navdata_demo_t*nd = &navdata->navdata_demo;	
 	
-    vControl *buffControl;
     char controlString[]="\n\nControl %s:\n\t\t\t[Ref]%4.1f\n\t\t\t[Inicial]%4.1f\n\t\t\t[Vout]%1.5f";
     if (theCounter>=upTo){
         gdk_threads_enter();
@@ -39,25 +38,21 @@ inline C_RESULT demo_navdata_client_process( const navdata_unpacked_t* const nav
                     "\n\nOrientation:\n\t\t\t[Theta]%4.1f\n\t\t\t[Phi]%4.1f\n\t\t\t[Psi] %4.1f\nSpeed:\n\t\t\t[vX]%4.3f\n\t\t\t[vY] %4.3f\n\t\t\t[vZPsi] %4.3f\n",
                     nd->theta/100.0,nd->phi/100.0,nd->psi/100.0,nd->vx,nd->vy,nd->vz);
             gtk_label_set_text((GtkLabel*)gui->labelR,theString);
-            buffControl=getVControl(varX);
             sprintf(theString,
                     controlString,
 				"x",vControlGetRef(varX),vControlGetVin(varX),vControlGetVout(varX));
             gtk_label_set_text((GtkLabel*)gui->labelX,theString);
 
-            buffControl=getVControl(varY);
             sprintf(theString,
                     controlString,
     				"y",vControlGetRef(varY),vControlGetVin(varY),vControlGetVout(varY));
             gtk_label_set_text((GtkLabel*)gui->labelY,theString);
 
-            buffControl=getVControl(varYaw);
             sprintf(theString,
                     controlString,
 				"yaw",vControlGetRef(varYaw),vControlGetVin(varYaw),vControlGetVout(varYaw));
             gtk_label_set_text((GtkLabel*)gui->labelW,theString);
 
-            buffControl=getVControl(varZ);
             sprintf(theString,
                     controlString,
 				"z",vControlGetRef(varZ),vControlGetVin(varZ),vControlGetVout(varZ));

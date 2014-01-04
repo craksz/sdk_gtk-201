@@ -94,12 +94,16 @@ void setManualVariable(ManualVars index, float value){
     switch(index){
         case MANUAL_PHI:
             manualControl.phi=value;
+            return;
         case MANUAL_THETA:
             manualControl.theta=value;
+            return;
         case MANUAL_GAZ:
             manualControl.gaz=value;
+            return;
         case MANUAL_YAW:
             manualControl.yaw=value;
+            return;
         default:
             return;
     }
@@ -183,7 +187,11 @@ void updateTestModeRefs(){
 bool_t manualControlCheckAndRun(){
     if(manualControl.phi!=0||manualControl.theta!=0||manualControl.gaz!=0||manualControl.yaw!=0){
         ardrone_tool_set_progressive_cmd( 1,manualControl.phi,manualControl.theta,manualControl.gaz,manualControl.yaw,0.0,0.0);
+        //printf("%.1f %.1f %.1f %.1f \n",manualControl.phi,manualControl.theta,manualControl.gaz,manualControl.yaw);
         //ardrone_at_set_led_animation(FIRE,10,1);
+        //gui_t *gui=get_gui();
+        //gtk_label_set_text((GtkLabel*)gui->textBox,"manualControl called");
+
         return TRUE;
 	}
     return FALSE;
@@ -245,9 +253,9 @@ void vControlTask(){
 
     fuzzyControl();
             
-    if(vControlGetVout(varZ)<0){
+    /*if(vControlGetVout(varZ)<0){
         zComp=0.125;
-    }
+    }//*/
     if(vControlGetVout(varY)!=0||vControlGetVout(varX)!=0){
         ardrone_tool_set_progressive_cmd( 1,-(float)vControlGetVout(varX),-(float)vControlGetVout(varY),zComp*(float)vControlGetVout(varZ),0.0,0.0,0.0);
     }

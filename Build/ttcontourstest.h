@@ -221,7 +221,7 @@ static void ttInit(ttModels *theModels){
 			segValues[i]=theSegLoader[i].theInt;
 		}
 		
-		loadVars("models.dat",theModelsLoader);
+		//loadVars("models.dat",theModelsLoader);
 		/*
 		theModels->model1=cvLoadImage(theModelsLoader[0].theString,0);
 		theModels->model2=cvLoadImage(theModelsLoader[1].theString,0);

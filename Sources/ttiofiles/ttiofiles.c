@@ -65,7 +65,7 @@ int loadVars(const char *theFile, var_t *vars){
 	FILE *fileObj;
 	
 	fileObj=fopen(theFile,"r");
-        if (fileObj==NULL) { printf ("loadVars File not found\n\n"); exit(-1); }
+        if (fileObj==NULL) { printf ("loadVars File not found %s\n\n",theFile); exit(-1); }
 	while(fgets(theData, 300, fileObj) != NULL){
 	
 	 if(strlen(theData)>3){
