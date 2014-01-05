@@ -342,13 +342,13 @@ void PrintOnGui(const char * theString){
     
 }
 
-setGainSet(float skale1,float skale2,float skale3){
+void setGainSet(float skale1,float skale2,float skale3){
     gui->gainSetBuffer[0]=skale1;
     gui->gainSetBuffer[1]=skale2;
     gui->gainSetBuffer[2]=skale3;
 }
 
-holdCurrentGainsForVar(vControlVars index){
+void holdCurrentGainsForVar(vControlVars index){
     vControl* buffControl=getVControl(index);
     setGainSet(buffControl->ke,buffControl->kr,buffControl->ku);
 }

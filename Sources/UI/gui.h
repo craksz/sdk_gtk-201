@@ -4,6 +4,7 @@
 //#include "ttiofiles.h"
 #include "ImgProc/ImgProc.h"
 #include "UI/gamepad.h"
+#include "UI/fuzzyControl.h"
 #include "cv.h"
 #include <gtk/gtk.h>
 #include <VP_Os/vp_os_types.h>

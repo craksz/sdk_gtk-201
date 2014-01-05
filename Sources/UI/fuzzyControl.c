@@ -1,10 +1,46 @@
 #include "fuzzyControl.h"
 
+
 vControl Z;
 vControl X;
 vControl Y;
 vControl Yaw;
 fGraph zg;	
+
+	double h[] = {-1,-0.7,-0.3,0,0.3,0.7,1};		// Conjuntos Singletons de salida
+	double hZ[] = {-0.3,-0.2,-0.05,0,0.5,0.8,1};		// Conjuntos Singletons de salida
+
+double vControlGetVout(vControlVars index){
+    vControl * buffControl=getVControl(index);
+    if(buffControl!=NULL)
+        return (float)buffControl->vout;
+    return 0;
+}
+
+double vControlGetVin(vControlVars theVar){
+    vControl * buffControl=getVControl(theVar);
+    if(buffControl!=NULL)
+        return (float)buffControl->vin;
+    return 0;
+}
+double vControlGetRef(vControlVars theVar){
+    vControl * buffControl=getVControl(theVar);
+    if(buffControl!=NULL)
+        return (float)buffControl->ref;
+    return 0;
+}
+void vControlSetVin(vControlVars theVar,double vin){
+    vControl * buffControl=getVControl(theVar);
+    if(buffControl!=NULL&&vControlGetVin(theVar)!=vin){
+        buffControl->vin=vin;
+//        printf("vControlSetVin %d : %.15g\n\n",theVar,vin);
+    }
+}
+void vControlSetRef(vControlVars theVar,double ref){
+    vControl * buffControl=getVControl(theVar);
+    if(buffControl!=NULL)
+        buffControl->ref=ref;
+}
 
 fGraph * getFGraph(){
     return &zg;
@@ -53,103 +89,17 @@ void inGraph( fGraph *gX ){
 
 }
 
-// Función para graficar;
-void fuzzyGraph( fGraph *gX, IplImage *graph ){
-
-        if(gX==NULL){ printf("\nfuzzyGraph null pointer\n\n"); exit(-1); }
-	if(graph==NULL){ printf("\nfuzzyGraph graph null pointer\n\n"); exit(-1); }
-	
-	//char filename[50];
-	int i;
-
-	CvFont font;
-	cvInitFont( &font, CV_FONT_HERSHEY_COMPLEX_SMALL, 0.5, 0.5, 0.5, 0, 8);
-
-	if( gX -> counter == 300 || gX -> counter == 0){
-		if( gX -> counter == 300 ){
-			gX->counter2++;
-			/*if(gX->counter2<10)
-				sprintf( filename, "./graph/graph0%d.BMP", gX->counter2 );
-			else
-				sprintf( filename, "./graph/graph%d.BMP", gX->counter2 );
-			cvSaveImage( filename, graph, 0 );//*/
-		}
-
-		gX->counter = 0;
-		cvSetZero( graph );
-		
-		i = 0;
-		for( i = 1; i < 60; i++){
-			cvLine( graph, cvPoint(0,i*10-1), cvPoint(599,i*10-1), CV_RGB(20,20,20), 0, 8, 0 );			
-		};
-
-		cvLine( graph, cvPoint(0,299), cvPoint(599,299), CV_RGB(255,255,255), 2, 8, 0 );
-		cvLine( graph, cvPoint(299,0), cvPoint(299,599), CV_RGB(255,255,255), 2, 8, 0 );
-
-		cvLine( graph, cvPoint(0,149), cvPoint(599,149), CV_RGB(0,0,255), 0, 8, 0 );
-		cvLine( graph, cvPoint(300,449), cvPoint(599,449), CV_RGB(0,0,255), 0, 8, 0 );
-
-		cvPutText( graph, "Control en X", cvPoint(4,10), &font, CV_RGB(0,255,0) );
-		cvPutText( graph, "Control en Y", cvPoint(304,10), &font, CV_RGB(0,255,0) );
-		cvPutText( graph, "Control en Z", cvPoint(4,310), &font, CV_RGB(0,255,0) );
-		cvPutText( graph, "Control en Yaw", cvPoint(304,310), &font, CV_RGB(0,255,0) );
-
-	};
-	
-	CvPoint ref;
-	CvPoint pos;
-
-////////////////	X
-
-	pos.x = gX->counter;
-	pos.y = cvRound( 149 - gX->x );
-
-	cvCircle( graph, pos, 0, CV_RGB(255,255,0), 0, 8, 0 );
-	
-////////////////	Y
-
-	pos.x = 300 + gX->counter;
-	pos.y = cvRound( 149 - gX->y );
-
-	cvCircle( graph, pos, 0, CV_RGB(255,255,0), 0, 8, 0 );
-
-////////////////	Z
-
-	ref.x = gX->counter;
-	ref.y = cvRound( 599 - gX->ref/10 );
-
-	pos.x = gX->counter;
-	pos.y = cvRound( 599 - gX->z/10 );
-
-	cvCircle( graph, ref, 0, CV_RGB( 200, 0, 0), 0, 8, 0);
-	cvCircle( graph, pos, 0, CV_RGB(255,255,0), 0, 8, 0);
-
-////////////////	Yaw
-
-	pos.x = 300 + gX->counter;
-	pos.y = cvRound( 449 - gX->w );
-	//pos.y = cvRound( 449 - ( 360 * atan2( gX->y , gX->x ) )/(2*PI)/1.5 );
-
-	cvCircle( graph, pos, 0, CV_RGB(255,255,0), 0, 8, 0 );
-
-////////////////
-	gX->counter++;
-    
-    gui_t *gui=get_gui();
-    if(gui->fuzzyControlGraphWidgetReq==1){	
-        GdkPixbuf * pixbuf;	
-  		pixbuf = gdk_pixbuf_new_from_data((const guchar*)graph->imageData,
-                    GDK_COLORSPACE_RGB,
-                    FALSE,  
-                    8,     
-                    graph->width,    
-                    graph->height,     
-                    graph->widthStep, 
-                    NULL,    
-                    NULL);
-                              
-        gtk_image_set_from_pixbuf(GTK_IMAGE(gui->fuzzyImage), pixbuf);
-    }//*/
+double * getHArray(vControlVars theVarIndex){
+    switch(theVarIndex){
+        case varYaw:
+        case varX:
+        case varY:
+            return h;
+        case varZ:
+            return hZ;
+        default:
+            return NULL;
+    }
 }
 
 void fuzzyControlPerVar(vControl *theVar){
@@ -158,7 +108,6 @@ void fuzzyControlPerVar(vControl *theVar){
 	double fuzzyMem1[5];	// Auxiliar para la fuzzyficación 
 	double fuzzyMem2[5];	// Auxiliar para la fuzzyficación
 	double vInference[7];			// Auxiliar para la inferencia difusa
-	double h[] = {-1,-0.8,-0.5,0,0.5,0.8,1};		// Conjuntos Singletons de salida
 	//double prevError;
 	double Error;
 	double Rate;
@@ -166,15 +115,15 @@ void fuzzyControlPerVar(vControl *theVar){
 	theVar->error 	= theVar->ref - theVar->vin;
 	//setSkale( altitud, 0.08, 0.9, 1.0 );
 
-	Error = theVar->ke * theVar->error;
-	Rate = theVar->kr * ( theVar->error - theVar->error0 );
+	Error = theVar->ke * theVar->error * theVar->ce;
+	Rate = theVar->kr * ( theVar->error - theVar->error0 ) * theVar->ce;
 
 	theVar->error0 = theVar->error;
 
 	fuzzification ( &Error , fuzzyMem1 );
 	fuzzification ( &Rate , fuzzyMem2 );
 	fuzzyInferenceAlt( fuzzyMem1, fuzzyMem2, vInference );
-	Defuzz( theVar, vInference , h);
+	Defuzz( theVar, vInference);
 }
 
 void fuzzyControl (){
@@ -279,12 +228,29 @@ void inControlName(vControlVars theVarIndex){
     }
 }
 
+double getCE(vControlVars theVarIndex){
+    switch(theVarIndex){
+        case varYaw:
+            return WCE;
+        case varX:
+            return XCE;
+        case varY:
+            return YCE;
+        case varZ:
+            return ZCE;
+        default:
+            return 0.0;
+    }
+}
+
 //	Inicializa las structura de control a cero
 void inControl ( vControlVars theVarIndex ){
     
     vControl * control=getVControl(theVarIndex);
 
 	if(control==NULL){ printf("\ninControl null pointer\n\n"); exit(-1); }
+    
+    control->ce     =getCE(theVarIndex);
 	control->vin 	= 0.0;
 	control->ref 	= 0.0;
 	control->vout 	= 0.0;
@@ -295,8 +261,9 @@ void inControl ( vControlVars theVarIndex ){
 
 	control->error	= 0.0;
 	control->error0 = 0.0;
-    
+ 
     inControlName(theVarIndex);
+    control->h=getHArray(theVarIndex);
 
 	//control->name	= name;
 
@@ -407,35 +374,35 @@ void fuzzyInferenceAlt( double *fuzzyError, double *fuzzyRate, double *vInferenc
 	if(fuzzyError==NULL){ printf("\nfuzzyError null pointer\n\n"); exit(-1); }
 	if(fuzzyRate==NULL){ printf("\nfuzzyError null pointer\n\n"); exit(-1); }
 	if(vInference==NULL){ printf("\nfuzzyError null pointer\n\n"); exit(-1); }
-//	1.-	Si Error es Muy Positivo y Rate es Muy positivo entonces la salida es 	h+2
-//	2.-	Si Error es Muy Positivo y Rate es Positivo 	entonces la salida es 	h+3
-//	3.-	Si Error es Muy Positivo y Rate es Cero 	entonces la salida es	h+2
-//	4.- 	Si Error es Muy Positivo y Rate es Negativo 	entonces la salida es	h+2
-//	5.-	Si Error es Muy Positivo y Rate es Muy Negativo entonces la salida es	h+3
+//	1.-	Si Error es Muy Positivo y Rate es Muy positivo entonces la salida es 	h+3
+//	2.-	Si Error es Muy Positivo y Rate es Positivo 	entonces la salida es 	h+2
+//	3.-	Si Error es Muy Positivo y Rate es Cero 	entonces la salida es       h+2
+//	4.- Si Error es Muy Positivo y Rate es Negativo 	entonces la salida es	h+2
+//	5.-	Si Error es Muy Positivo y Rate es Muy Negativo entonces la salida es	h+2
 
-//	6.-	Si Error es Positivo y Rate es Muy Positivo 	entonces la salida es	h+1
-//	7.-	Si Error es Positivo y Rate es Positivo 	entonces la salida es	h+2
-//	8.-	Si Error es Positivo y Rate es Cero 		entonces la salida es	h+1
-//	9.-	Si Error es Positivo y Rate es Negativo 	entonces la salida es	h+2
-//	10.-	Si Error es Positivo y Rate es Muy Negativo 	entonces la salida es	h+3
+//	6.-	Si Error es Positivo y Rate es Muy Positivo 	entonces la salida es	h+2
+//	7.-	Si Error es Positivo y Rate es Positivo 	entonces la salida es       h+2
+//	8.-	Si Error es Positivo y Rate es Cero 		entonces la salida es       h+1
+//	9.-	Si Error es Positivo y Rate es Negativo 	entonces la salida es       h+2
+//	10.-	Si Error es Positivo y Rate es Muy Negativo entonces la salida es	h+2
 
 //	11.-	Si Error es Cero y Rate es Muy Positivo 	entonces la salida es 	h+1
 //	12.-	Si Error es Cero y Rate es Positivo 		entonces la salida es	h0
-//	13.-	Si Error es Cero y Rate es Cero 		entonces la salida es	h0
+//	13.-	Si Error es Cero y Rate es Cero 		entonces la salida es       h0
 //	14.-	Si Error es Cero y Rate es Negativo 		entonces la salida es	h0
 //	15.-	Si Error es Cero y Rate es Muy Negativo 	entonces la salida es	h-1
 
-//	16.-	Si Error es Negativo y Rate es Muy Positivo 	entonces la Salida es	h-3
+//	16.-	Si Error es Negativo y Rate es Muy Positivo entonces la Salida es	h-2
 //	17.-	Si Error es Negativo y Rate es Positivo 	entonces la Salida es	h-2
 //	18.-	Si Error es Negativo y Rate es Cero 		entonces la Salida es	h-1
 //	19.-	Si Error es Negativo y Rate es Negativo 	entonces la Salida es	h-2
-//	20.-	Si Error es Negativo y Rate es Muy Negativo 	entonces la Salida es	h-1
+//	20.-	Si Error es Negativo y Rate es Muy Negativo entonces la Salida es	h-2
 
-//	21.-	Si Error es Muy Negativo y Rate es Muy Positivo entonces la salida es	h-3
+//	21.-	Si Error es Muy Negativo y Rate es Muy Positivo entonces la salida es	h-2
 //	22.-	Si Error es Muy Negativo y Rate es Positivo 	entonces la salida es	h-2
-//	23.-	Si Error es Muy Negativo y Rate es Cero 	entonces la salida es	h-3
-//	24.-	Si Error es Muy Negativo y Rate es Negativo 	entonces la salida es	h-3
-//	25.-	Si Error es Muy Negativo y Rate es Muy Negativo entonces la salida es	h-2
+//	23.-	Si Error es Muy Negativo y Rate es Cero 	entonces la salida es       h-2
+//	24.-	Si Error es Muy Negativo y Rate es Negativo 	entonces la salida es	h-2
+//	25.-	Si Error es Muy Negativo y Rate es Muy Negativo entonces la salida es	h-3
 
 	double uz[25];
 	
@@ -477,28 +444,27 @@ void fuzzyInferenceAlt( double *fuzzyError, double *fuzzyRate, double *vInferenc
 	vInference[5] = 0;
 	vInference[6] = 0;
 
-//	Para Salida h-3 	( reglas 16, 21, 23, 24 )
-	maximum( &uz[15], &uz[20], &vInference[0] );
-	maximum( &uz[22], &uz[23], &vInference[0] );
+//	Para Salida h-3 	( reglas 25)
+	maximum( &uz[24], &uz[24], &vInference[0] );
 //	Para Salida h-2 	( reglas 17, 19, 22, 25 )
-	maximum( &uz[16], &uz[18], &vInference[1] );
-	maximum( &uz[21], &uz[24], &vInference[1] );
-//	Para Salida h-1 	( reglas 15, 18, 20 )
+	maximum( &uz[15], &uz[16], &vInference[1] );
+	maximum( &uz[18], &uz[19], &vInference[1] );
+	maximum( &uz[20], &uz[21], &vInference[1] );
+	maximum( &uz[22], &uz[23], &vInference[1] );
+//	Para Salida h-1 	( reglas 15,18)
 	maximum( &uz[14], &uz[17], &vInference[2] );
-	maximum( &uz[17], &uz[19], &vInference[2] );
 //	Para Salida h0		(reglas 12, 13, 14 )
 	maximum( &uz[11], &uz[12], &vInference[3] );
 	maximum( &uz[12], &uz[13], &vInference[3] );
 //	Para Salida h+1		(reglas 6, 8, 11 )
-	maximum( &uz[5], &uz[7], &vInference[4] );
 	maximum( &uz[7], &uz[10], &vInference[4] );
 //	Para Salida h+2		(reglas 1, 3, 4, 7, 9)
-	maximum( &uz[0], &uz[2], &vInference[5] );
-	maximum( &uz[3], &uz[6], &vInference[5] );
-	maximum( &uz[6], &uz[8], &vInference[5] );
+	maximum( &uz[1], &uz[2], &vInference[5] );
+	maximum( &uz[3], &uz[4], &vInference[5] );
+	maximum( &uz[5], &uz[6], &vInference[5] );
+	maximum( &uz[8], &uz[9], &vInference[5] );
 //	Para Salida h+3		(reglas 2, 5, 10 )
-	maximum( &uz[1], &uz[4], &vInference[6] );
-	maximum( &uz[4], &uz[9], &vInference[6] );
+	maximum( &uz[0], &uz[0], &vInference[6] );
 
 }
 
@@ -527,14 +493,14 @@ void maximum( double *var1, double *var2, double *var3){
 }
 
 //	Defusificación: Linear Defuzzyfier
-void Defuzz( vControl * theVar, double *u , double *h){
+void Defuzz( vControl * theVar, double *u){
 	double aux = 0.0;
 	theVar->vout = 0.0;
 
 	int i;
 	for( i = 0; i < 7; i++ ){
 		aux += u[i];
-		theVar->vout += h[i] * u[i];
+		theVar->vout += theVar->h[i] * u[i];
 	};
 
 	theVar->vout = theVar->ku * theVar->vout;
@@ -542,5 +508,6 @@ void Defuzz( vControl * theVar, double *u , double *h){
 		theVar->vout = theVar->vout/aux;
 	else 
 		theVar->vout = 1;
+    
 }
 

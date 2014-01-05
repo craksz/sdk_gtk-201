@@ -3,26 +3,13 @@
 
 #include "UI/ui.h"
 #include "cv.h"
+#include "UI/fuzzyControl.h"
 
 #define USE_IMAGE_MANUAL_CONTROL                0
 
 #define switchTop 5
-#define XGAIN1 0.0
-#define XGAIN2 0.0
-#define XGAIN3 0.0
-#define YGAIN1 0.0
-#define YGAIN2 0.0
-#define YGAIN3 0.0
-#define ZGAIN1 0.1
-#define ZGAIN2 0.0
-#define ZGAIN3 1.0
-#define WGAIN1 1.1
-#define WGAIN2 3.3
-#define WGAIN3 1.0
 #define YAWTOLERANCE 10
 
-#define NegativeTolerance -10
-#define PositiveTolerance 10
 
 
 #define heightTop 700
@@ -54,12 +41,6 @@ typedef enum {
 } PAD_BUTTONS;
 
 
-typedef enum{
-	varX=1,
-	varY,
-	varYaw,
-	varZ
-} vControlVars;
 
 typedef enum{
 	MANUAL_PHI=1,
@@ -68,21 +49,7 @@ typedef enum{
     MANUAL_GAZ
 } ManualVars;
 
-typedef struct {
 
-	double x;
-	double y;
-	double z;
-	double w;
-
-	double ref;
-
-	int counter;
-	int counter2;
-
-	char *name;
-
-}	fGraph;
 
 
 typedef struct{
@@ -91,23 +58,7 @@ typedef struct{
 	float gaz;
 	float yaw;
 }Manual;
-/*	Estructura para el control difuso	*/
-typedef struct {
 
-	double vin;
-	double ref;
-	double vout;
-
-	double ke;
-	double kr;
-	double ku;
-
-	double error;
-	double error0;
-
-	char *name;
-
-}	vControl;
 
 IplImage *getImage();
 Manual *getManual();
@@ -115,19 +66,13 @@ void clearManual();
 float getManualVariable(ManualVars theVar);
 void setManualVariable(ManualVars theVar, float value);
 
-void vControlSetVin(vControlVars theVar,double vin);
-void vControlSetRef(vControlVars theVar,double ref);
-
-double vControlGetRef(vControlVars theVar);
-double vControlGetVin(vControlVars theVar);
-double vControlGetVout(vControlVars theVar);
-
 extern input_device_t fpad;
 
 C_RESULT open_fpad(void);
 C_RESULT update_fpad(void);
 C_RESULT close_fpad(void);
 
+void fuzzyGraph( fGraph *, IplImage * );
 
 
 

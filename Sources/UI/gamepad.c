@@ -19,7 +19,6 @@
 #include <VP_Os/vp_os_types.h>
 #include "gamepad.h"
 #include "UI/gui.h"
-#include "fuzzyControl.h"
 
 
 
@@ -109,40 +108,106 @@ void setManualVariable(ManualVars index, float value){
     }
 }
 
-double vControlGetVout(vControlVars index){
-    vControl * buffControl=getVControl(index);
-    if(buffControl!=NULL)
-        return (float)buffControl->vout;
-    return 0;
-}
-
-double vControlGetVin(vControlVars theVar){
-    vControl * buffControl=getVControl(theVar);
-    if(buffControl!=NULL)
-        return (float)buffControl->vin;
-    return 0;
-}
-double vControlGetRef(vControlVars theVar){
-    vControl * buffControl=getVControl(theVar);
-    if(buffControl!=NULL)
-        return (float)buffControl->ref;
-    return 0;
-}
-void vControlSetVin(vControlVars theVar,double vin){
-    vControl * buffControl=getVControl(theVar);
-    if(buffControl!=NULL&&vControlGetVin(theVar)!=vin){
-        buffControl->vin=vin;
-//        printf("vControlSetVin %d : %.15g\n\n",theVar,vin);
-    }
-}
-void vControlSetRef(vControlVars theVar,double ref){
-    vControl * buffControl=getVControl(theVar);
-    if(buffControl!=NULL)
-        buffControl->ref=ref;
-}
 
 
+// Función para graficar;
+void fuzzyGraph( fGraph *gX, IplImage *graph ){
 
+        if(gX==NULL){ printf("\nfuzzyGraph null pointer\n\n"); exit(-1); }
+	if(graph==NULL){ printf("\nfuzzyGraph graph null pointer\n\n"); exit(-1); }
+	
+	//char filename[50];
+	int i;
+
+	CvFont font;
+	cvInitFont( &font, CV_FONT_HERSHEY_COMPLEX_SMALL, 0.5, 0.5, 0.5, 0, 8);
+
+	if( gX -> counter == 300 || gX -> counter == 0){
+		if( gX -> counter == 300 ){
+			gX->counter2++;
+			/*if(gX->counter2<10)
+				sprintf( filename, "./graph/graph0%d.BMP", gX->counter2 );
+			else
+				sprintf( filename, "./graph/graph%d.BMP", gX->counter2 );
+			cvSaveImage( filename, graph, 0 );//*/
+		}
+
+		gX->counter = 0;
+		cvSetZero( graph );
+		
+		i = 0;
+		for( i = 1; i < 60; i++){
+			cvLine( graph, cvPoint(0,i*10-1), cvPoint(599,i*10-1), CV_RGB(20,20,20), 0, 8, 0 );			
+		};
+
+		cvLine( graph, cvPoint(0,299), cvPoint(599,299), CV_RGB(255,255,255), 2, 8, 0 );
+		cvLine( graph, cvPoint(299,0), cvPoint(299,599), CV_RGB(255,255,255), 2, 8, 0 );
+
+		cvLine( graph, cvPoint(0,149), cvPoint(599,149), CV_RGB(0,0,255), 0, 8, 0 );
+		cvLine( graph, cvPoint(300,449), cvPoint(599,449), CV_RGB(0,0,255), 0, 8, 0 );
+
+		cvPutText( graph, "Control en X", cvPoint(4,10), &font, CV_RGB(0,255,0) );
+		cvPutText( graph, "Control en Y", cvPoint(304,10), &font, CV_RGB(0,255,0) );
+		cvPutText( graph, "Control en Z", cvPoint(4,310), &font, CV_RGB(0,255,0) );
+		cvPutText( graph, "Control en Yaw", cvPoint(304,310), &font, CV_RGB(0,255,0) );
+
+	};
+	
+	CvPoint ref;
+	CvPoint pos;
+
+////////////////	X
+
+	pos.x = gX->counter;
+	pos.y = cvRound( 149 - gX->x );
+
+	cvCircle( graph, pos, 0, CV_RGB(255,255,0), 0, 8, 0 );
+	
+////////////////	Y
+
+	pos.x = 300 + gX->counter;
+	pos.y = cvRound( 149 - gX->y );
+
+	cvCircle( graph, pos, 0, CV_RGB(255,255,0), 0, 8, 0 );
+
+////////////////	Z
+
+	ref.x = gX->counter;
+	ref.y = cvRound( 599 - gX->ref/10 );
+
+	pos.x = gX->counter;
+	pos.y = cvRound( 599 - gX->z/10 );
+
+	cvCircle( graph, ref, 0, CV_RGB( 200, 0, 0), 0, 8, 0);
+	cvCircle( graph, pos, 0, CV_RGB(255,255,0), 0, 8, 0);
+
+////////////////	Yaw
+
+	pos.x = 300 + gX->counter;
+	pos.y = cvRound( 449 - gX->w );
+	//pos.y = cvRound( 449 - ( 360 * atan2( gX->y , gX->x ) )/(2*PI)/1.5 );
+
+	cvCircle( graph, pos, 0, CV_RGB(255,255,0), 0, 8, 0 );
+
+////////////////
+	gX->counter++;
+    
+    gui_t *gui=get_gui();
+    if(gui->fuzzyControlGraphWidgetReq==1){	
+        GdkPixbuf * pixbuf;	
+  		pixbuf = gdk_pixbuf_new_from_data((const guchar*)graph->imageData,
+                    GDK_COLORSPACE_RGB,
+                    FALSE,  
+                    8,     
+                    graph->width,    
+                    graph->height,     
+                    graph->widthStep, 
+                    NULL,    
+                    NULL);
+                              
+        gtk_image_set_from_pixbuf(GTK_IMAGE(gui->fuzzyImage), pixbuf);
+    }//*/
+}
 	
 C_RESULT open_fpad(void){
 	
@@ -216,28 +281,8 @@ void printControlsToGui(){
     gui_t * gui=get_gui();
     
     if(gui->configured==1&&gui!=NULL){
-    
-    	/*sprintf(theString,
-				"\n\nControl %s:\n\t\t\t[Ref]%4.1f\n\t\t\t[Inicial]%4.1f\n\t\t\t[Vout]%1.5f",
-				"x",vControlGetRef(varX),vControlGetVin(varX),vControlGetVout(varX));//*/
-        //strcpy(theString,"ecole!!!!!!");
-		gtk_label_set_text((GtkLabel*)gui->labelX,"ecole!!!!!!!!!");
-		
-    	/*sprintf(theString,
-				"\n\nControl %s:\n\t\t\t[Ref]%4.1f\n\t\t\t[Inicial]%4.1f\n\t\t\t[Vout]%1.5f",
-				"y",vControlGetRef(varY),vControlGetVin(varY),vControlGetVout(varY));
-		gtk_label_set_text((GtkLabel*)gui->labelY,theString);
-		
-    	sprintf(theString,
-				"\n\nControl %s:\n\t\t\t[Ref]%4.1f\n\t\t\t[Inicial]%4.1f\n\t\t\t[Vout]%1.5f",
-				"w",vControlGetRef(varYaw),vControlGetVin(varYaw),vControlGetVout(varYaw));
-		gtk_label_set_text((GtkLabel*)gui->labelW,theString);
-		
-    	sprintf(theString,
-				"\n\nControl %s:\n\t\t\t[Ref]%4.1f\n\t\t\t[Inicial]%4.1f\n\t\t\t[Vout]%1.5f",
-				"z",vControlGetRef(varZ),vControlGetVin(varZ),vControlGetVout(varZ));
-		gtk_label_set_text((GtkLabel*)gui->labelZ,theString);//*/
-    }
+    	gtk_label_set_text((GtkLabel*)gui->labelX,"ecole!!!!!!!!!");
+	}
 		
 }
 
