@@ -33,7 +33,7 @@
 
 #define VIDEO_VERT_WIDTH        176
 #define VIDEO_VERT_HEIGHT       144
-#define VIDEO_SAVE              0
+#define VIDEO_SAVE              1
 
 /*#define IMG_PROC_ERROR_NO_CONTOURS_FOUND            -1;
 #define IMG_PROC_ERROR_                             -2;

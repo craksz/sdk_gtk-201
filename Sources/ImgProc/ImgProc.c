@@ -37,7 +37,7 @@ int ttInitImgProc(void){
 					"gnuplot/theVid-%2.2f,%2.2f,%2.2f-%2.2f,%2.2f,%2.2f-%2.2f,%2.2f,%2.2f-%2.2f,%2.2f,%2.2f-%d.avi",
 					XGAIN1,XGAIN2,XGAIN3,YGAIN1,YGAIN2,YGAIN3,ZGAIN1,ZGAIN2,ZGAIN3,WGAIN1,WGAIN2,WGAIN3,switchTop);
 				
-	theWriter=cvCreateVideoWriter(filename,CV_FOURCC('M','J','P','G'),25,cvSize(justWidth,justHeight),1);
+	theWriter=cvCreateVideoWriter(filename,CV_FOURCC('M','J','P','G'),25,cvSize(VIDEO_VERT_WIDTH,VIDEO_VERT_HEIGHT),1);
 #endif
   
     tempFrame=cvCreateImage(cvSize(VIDEO_VERT_WIDTH,VIDEO_VERT_HEIGHT),IPL_DEPTH_8U,1);
